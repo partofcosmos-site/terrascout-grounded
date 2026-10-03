@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-10-03T18:30:04Z",
+  "timestamp": "2026-10-03T19:15:26Z",
   "project": "TerraScout Grounded Telemetry Rover",
   "stls": [
     {
@@ -28,7 +28,8 @@
       "is_watertight": true,
       "boundary_edges": 0,
       "non_manifold_edges": 0,
-      "size_kb": 175.3
+      "size_kb": 175.3,
+      "compile_time_s": 14.81
     },
     {
       "file": "top_deck.stl",
@@ -56,7 +57,8 @@
       "is_watertight": true,
       "boundary_edges": 0,
       "non_manifold_edges": 0,
-      "size_kb": 190.7
+      "size_kb": 190.7,
+      "compile_time_s": 11.71
     },
     {
       "file": "motor_bracket.stl",
@@ -84,7 +86,8 @@
       "is_watertight": true,
       "boundary_edges": 0,
       "non_manifold_edges": 0,
-      "size_kb": 38.6
+      "size_kb": 38.6,
+      "compile_time_s": 0.8
     },
     {
       "file": "ultrasonic_bracket.stl",
@@ -112,7 +115,8 @@
       "is_watertight": true,
       "boundary_edges": 0,
       "non_manifold_edges": 0,
-      "size_kb": 60.6
+      "size_kb": 60.6,
+      "compile_time_s": 1.67
     },
     {
       "file": "caster_mount.stl",
@@ -140,7 +144,8 @@
       "is_watertight": true,
       "boundary_edges": 0,
       "non_manifold_edges": 0,
-      "size_kb": 32.5
+      "size_kb": 32.5,
+      "compile_time_s": 0.95
     },
     {
       "file": "print_bed_plate.stl",
@@ -168,7 +173,8 @@
       "is_watertight": true,
       "boundary_edges": 0,
       "non_manifold_edges": 0,
-      "size_kb": 537.0
+      "size_kb": 537.0,
+      "compile_time_s": 33.45
     }
   ],
   "renders": [
@@ -176,14 +182,14 @@
       "name": "assembly.png",
       "resolution": "1920x1080",
       "size_kb": 55.6,
-      "render_time_s": 0.86,
+      "render_time_s": 0.91,
       "description": "Rover Dual-Deck Full Hardware Assembly (Isometric)"
     },
     {
       "name": "exploded.png",
       "resolution": "1920x1080",
       "size_kb": 63.5,
-      "render_time_s": 0.37,
+      "render_time_s": 0.41,
       "description": "Exploded Multi-Tier Architecture View (Battery Sled + Decks)"
     },
     {
@@ -197,15 +203,22 @@
       "name": "top_deck_render.png",
       "resolution": "1920x1080",
       "size_kb": 37.0,
-      "render_time_s": 0.32,
+      "render_time_s": 0.34,
       "description": "Top Deck Electronics Plate & Prow Servo Mount Detail"
     },
     {
       "name": "turret_render.png",
       "resolution": "1920x1080",
       "size_kb": 43.8,
-      "render_time_s": 0.31,
+      "render_time_s": 0.35,
       "description": "Ultrasonic Dual-Barrel Sensor Turret Bracket Detail"
+    },
+    {
+      "name": "cross_section.png",
+      "resolution": "1920x1080",
+      "size_kb": 46.1,
+      "render_time_s": 0.53,
+      "description": "Rover Longitudinal Cross-Sectional Slice (Battery Sled & Mezzanine Convection)"
     }
   ],
   "clearance_audit": [
@@ -272,6 +285,14 @@
       "mating_hardware": "HC-SR04 / RCWL-1601 transducer cans (16.0 mm OD)",
       "clearance": "0.15 mm radial press-fit margin with SG90 horn pocket",
       "status": "PASS - Solid friction fit without adhesive requirement"
+    },
+    {
+      "subsystem": "18650 Battery Compartment Thermal Dissipation",
+      "feature": "Mezzanine Convection Chimney & Ground Air Intake",
+      "cad_dimension": "75x40x19.5mm sled envelope, 8.5mm vertical plenum, 4x 14x3.5mm floor slots, 22x14mm central chimney",
+      "mating_hardware": "Dual 18650 Li-ion cells in ABS sled (2S 7.4V)",
+      "clearance": "20 mW nominal Joule heating, 460 mW stall peak; passive buoyancy velocity 0.12 m/s; Delta T < 1.4 deg C",
+      "status": "PASS - Zero thermal throttling; natural convection draft prevents heat pocketing"
     }
   ]
 }
