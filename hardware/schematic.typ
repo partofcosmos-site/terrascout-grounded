@@ -8,11 +8,12 @@
 #set page(
   paper: "a4",
   flipped: true,
-  margin: (top: 1.4cm, bottom: 2.2cm, x: 1.4cm),
+  margin: (top: 1.2cm, bottom: 2.5cm, x: 1.4cm),
   header: none,
+  footer-descent: 4pt,
   footer: [
     #line(length: 100%, stroke: 0.5pt + rgb("#cbd5e1"))
-    #v(2pt)
+    #v(1pt)
     #grid(
       columns: (1fr, auto),
       align: (left + horizon, right + horizon),
