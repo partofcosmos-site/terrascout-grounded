@@ -1,12 +1,12 @@
 {
-  "timestamp": "2026-10-03T17:00:45Z",
+  "timestamp": "2026-10-03T17:11:16Z",
   "project": "TerraScout Grounded Telemetry Rover",
   "stls": [
     {
       "file": "bottom_deck.stl",
-      "triangles": 3492,
-      "unique_vertices": 1708,
-      "unique_edges": 5238,
+      "triangles": 3588,
+      "unique_vertices": 1756,
+      "unique_edges": 5382,
       "bounding_box": {
         "min": [
           -68.0,
@@ -24,17 +24,17 @@
           4.45
         ]
       },
-      "volume_cm3": 35.39,
+      "volume_cm3": 35.256,
       "is_watertight": true,
       "boundary_edges": 0,
       "non_manifold_edges": 0,
-      "size_kb": 170.6
+      "size_kb": 175.3
     },
     {
       "file": "top_deck.stl",
-      "triangles": 3808,
-      "unique_vertices": 1852,
-      "unique_edges": 5712,
+      "triangles": 3904,
+      "unique_vertices": 1900,
+      "unique_edges": 5856,
       "bounding_box": {
         "min": [
           -68.0,
@@ -52,11 +52,11 @@
           4.45
         ]
       },
-      "volume_cm3": 37.3,
+      "volume_cm3": 37.167,
       "is_watertight": true,
       "boundary_edges": 0,
       "non_manifold_edges": 0,
-      "size_kb": 186.0
+      "size_kb": 190.7
     },
     {
       "file": "motor_bracket.stl",
@@ -136,7 +136,7 @@
           10.0
         ]
       },
-      "volume_cm3": 2.471,
+      "volume_cm3": 2.457,
       "is_watertight": true,
       "boundary_edges": 0,
       "non_manifold_edges": 0,
@@ -144,9 +144,9 @@
     },
     {
       "file": "print_bed_plate.stl",
-      "triangles": 10804,
-      "unique_vertices": 5298,
-      "unique_edges": 16206,
+      "triangles": 10996,
+      "unique_vertices": 5394,
+      "unique_edges": 16494,
       "bounding_box": {
         "min": [
           -98.0,
@@ -164,47 +164,47 @@
           50.0
         ]
       },
-      "volume_cm3": 84.038,
+      "volume_cm3": 83.758,
       "is_watertight": true,
       "boundary_edges": 0,
       "non_manifold_edges": 0,
-      "size_kb": 527.6
+      "size_kb": 537.0
     }
   ],
   "renders": [
     {
       "name": "assembly.png",
       "resolution": "1920x1080",
-      "size_kb": 55.2,
-      "render_time_s": 0.44,
+      "size_kb": 55.6,
+      "render_time_s": 0.86,
       "description": "Rover Dual-Deck Full Hardware Assembly (Isometric)"
     },
     {
       "name": "exploded.png",
       "resolution": "1920x1080",
-      "size_kb": 63.0,
-      "render_time_s": 0.42,
+      "size_kb": 63.5,
+      "render_time_s": 0.37,
       "description": "Exploded Multi-Tier Architecture View (Battery Sled + Decks)"
     },
     {
       "name": "bottom_deck_render.png",
       "resolution": "1920x1080",
       "size_kb": 37.2,
-      "render_time_s": 0.34,
+      "render_time_s": 0.33,
       "description": "Bottom Deck Plate Interior Feature & Saddle Detail"
     },
     {
       "name": "top_deck_render.png",
       "resolution": "1920x1080",
-      "size_kb": 35.5,
-      "render_time_s": 0.34,
+      "size_kb": 37.0,
+      "render_time_s": 0.32,
       "description": "Top Deck Electronics Plate & Prow Servo Mount Detail"
     },
     {
       "name": "turret_render.png",
       "resolution": "1920x1080",
       "size_kb": 43.8,
-      "render_time_s": 0.33,
+      "render_time_s": 0.31,
       "description": "Ultrasonic Dual-Barrel Sensor Turret Bracket Detail"
     }
   ],
@@ -250,12 +250,20 @@
       "status": "PASS - Zero tire rubbing during maximum torque"
     },
     {
-      "subsystem": "15mm Ball Caster",
-      "feature": "Rear Caster Riser Mount Socket & M3 Nut Traps",
-      "cad_dimension": "15.80 mm socket dia, 20.0 mm bolt spacing",
-      "mating_hardware": "Standard 15mm steel ball transfer unit",
-      "clearance": "0.80 mm socket margin, 6.2mm M3 hex nut traps",
-      "status": "PASS - Level 3-point kinematic ground plane alignment"
+      "subsystem": "M3 Hex Nut Fastener Pockets",
+      "feature": "Dual-Deck & Caster Mount Hex Nut Traps",
+      "cad_dimension": "5.70 mm flat-to-flat (6.58 mm corner-to-corner)",
+      "mating_hardware": "Standard ISO 4032 / DIN 934 M3 hex nuts (5.50 mm flat-to-flat)",
+      "clearance": "0.20 mm friction fit (5.70 mm pocket width across flats)",
+      "status": "PASS - 5.5mm flat-to-flat + 0.2mm friction fit verified, captive anti-spin flush seating"
+    },
+    {
+      "subsystem": "N20 Gearbox Clamping Mechanics",
+      "feature": "Motor Clamping Bracket Normal Pressure & Torque Retention",
+      "cad_dimension": "110.4 mm^2 contact area (9.2 x 12.0 mm), 0.20 mm compression clamping",
+      "mating_hardware": "Standard N20 brass gearbox (12.0 x 10.0 mm)",
+      "clearance": "1.81 - 3.62 MPa normal pressure at 200 - 400 N screw preload (FoS = 5.26 against stall slip)",
+      "status": "PASS - Safe for brass casing (<2% yield), zero slippage under full stall torque"
     },
     {
       "subsystem": "Ultrasonic Panning Turret",
