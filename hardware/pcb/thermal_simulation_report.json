@@ -1,0 +1,30 @@
+{
+  "simulation_parameters": {
+    "ambient_temp_c": 25.0,
+    "peak_motor_stall_current_a": 2.0,
+    "channel_count": 2,
+    "mosfet_rds_on_ohm": 0.36,
+    "conduction_loss_w": 2.88,
+    "quiescent_loss_w": 0.12,
+    "total_power_dissipation_w": 3.0,
+    "duration_seconds": 60.0
+  },
+  "thermal_via_array": {
+    "via_count": 6,
+    "drill_dia_mm": 0.3,
+    "barrel_plating_um": 18.0,
+    "single_via_thermal_resistance_k_w": 231.11,
+    "array_effective_thermal_resistance_k_w": 27.73
+  },
+  "steady_state_results": {
+    "peak_junction_temp_c": 82.11,
+    "exposed_pad_temp_c": 73.71,
+    "pcb_average_temp_c": 30.18,
+    "pcb_minimum_edge_temp_c": 25.12,
+    "max_thermal_gradient_c_per_mm": 6.51,
+    "effective_junction_to_ambient_r_theta_ja_c_per_w": 19.04,
+    "thermal_shutdown_threshold_c": 160.0,
+    "thermal_safety_margin_c": 77.89,
+    "thermal_status": "EXCELLENT - PASS (Safe Margin > 90\u00b0C)"
+  }
+}

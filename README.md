@@ -23,7 +23,8 @@
 | **Engineering Devlog & Journal** | Markdown | [⏱️ JOURNAL.md](JOURNAL.md) — 38.5 hours of chronological engineering work with multimeter logs & CAD tests |
 | **Itemized Bill of Materials (BOM)** | CSV / MD | [📦 hardware/TERRASCOUT_BOM.md](hardware/TERRASCOUT_BOM.md) & [TERRASCOUT_BOM.csv](hardware/TERRASCOUT_BOM.csv) |
 | **Hardware Architecture & Netlist** | Netlist / MD | [🔌 hardware/TERRASCOUT_HARDWARE_ARCHITECTURE.md](hardware/TERRASCOUT_HARDWARE_ARCHITECTURE.md) & [.net](hardware/terrascout_schematic_netlist.net) |
-| **Parametric CAD Master Model** | OpenSCAD | [📐 cad/chassis.scad](cad/chassis.scad) — Parametric dual-deck FDM 3D printable chassis |
+| **Production PCB Gerbers & Layout** | ZIP / KiCad | [⚡ hardware/pcb/gerbers.zip](hardware/pcb/gerbers.zip) & [hardware/pcb/PCB_DESIGN_REPORT.md](hardware/pcb/PCB_DESIGN_REPORT.md) — 2-layer JLCPCB production package |
+| **Parametric CAD Master Model** | OpenSCAD | [📐 cad/chassis.scad](cad/chassis.scad) & [cad/README.md](cad/README.md) — Parametric dual-deck FDM chassis |
 | **Autonomous Firmware Stack** | MicroPython | [🧠 src/main.py](src/main.py) — Multi-rate cooperative scheduler, PID loops & OLED HUD |
 
 ---
@@ -35,7 +36,7 @@
   <img src="cad/assembly.png" alt="TerraScout 3D CAD Perspective Assembly" width="48%" />
   <img src="cad/exploded.png" alt="TerraScout Exploded Architecture Model" width="48%" />
   <br />
-  <em>Figure 1: Fully parametric dual-deck OpenSCAD chassis assembly (left) and exploded structural stack (right).</em>
+  <em>Figure 1: Fully parametric dual-deck OpenSCAD chassis assembly (left) and exploded structural stack (right). See <a href="cad/README.md">cad/README.md</a> for detailed plate inspection.</em>
 </p>
 
 ### 2. Verified JLCPCB Shopping Cart Review
@@ -57,6 +58,14 @@
   <a href="assets/telemetry_benchmark.png"><img src="assets/telemetry_benchmark.png" alt="TerraScout Closed-Loop Telemetry Benchmark" width="95%" /></a>
   <br />
   <em>Figure 4: 1000-tick closed-loop simulation benchmark verifying Kalman filtered IMU pitch/roll/heading, discrete PID speed tracking, and 2D occupancy grid obstacle avoidance.</em>
+</p>
+
+### 5. Production PCB 3D & 2D Top Layout Renders
+<p align="center">
+  <img src="hardware/pcb/render_3d_top_isometric.png" alt="TerraScout 3D PCB Isometric Render" width="48%" />
+  <img src="hardware/pcb/render_2d_top_composite.png" alt="TerraScout 2D Top Composite Gerber Render" width="48%" />
+  <br />
+  <em>Figure 5: 3D photorealistic PCB render (left) and PyGerber 2D composite copper/mask/silkscreen render (right). Direct fabrication package ready in <a href="hardware/pcb/gerbers.zip">hardware/pcb/gerbers.zip</a>.</em>
 </p>
 
 ---

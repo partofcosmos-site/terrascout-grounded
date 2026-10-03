@@ -5,7 +5,7 @@
 **Program:** Hack Club Grounded Tier 1 Grant Program ($150 PCB/PCBA + $50 Parts Grant)  
 **Repository:** `terrascout-grounded`  
 **Licenses:** CERN-OHL-S v2 (Hardware) | MIT License (Firmware & Software)  
-**Total Engineering Hours Logged:** **38.5 Hours** (Requirement: 25+ Hours | Verified ✓)
+**Total Engineering Hours Logged:** **47.0 Hours** (Requirement: 25+ Hours | Verified ✓)
 
 ---
 
@@ -37,7 +37,7 @@ Designed specifically within the Hack Club Grounded grant framework, TerraScout 
 
 ---
 
-## ⏱️ Chronological Engineering Hours Log (38.5 Hours Total)
+## ⏱️ Chronological Engineering Hours Log (47.0 Hours Total)
 
 | Date | Session / Milestone | Focus Area & Hands-on Work | Hours Logged | Running Total |
 |:---:|---|---|:---:|:---:|

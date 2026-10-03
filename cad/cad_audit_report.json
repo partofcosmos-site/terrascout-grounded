@@ -1,0 +1,269 @@
+{
+  "timestamp": "2026-10-03T12:03:47Z",
+  "project": "TerraScout Grounded Telemetry Rover",
+  "stls": [
+    {
+      "file": "bottom_deck.stl",
+      "triangles": 3092,
+      "unique_vertices": 1516,
+      "unique_edges": 4638,
+      "bounding_box": {
+        "min": [
+          -68.0,
+          -47.0,
+          0.0
+        ],
+        "max": [
+          68.0,
+          47.0,
+          4.45
+        ],
+        "dimensions_mm": [
+          136.0,
+          94.0,
+          4.45
+        ]
+      },
+      "is_watertight": true,
+      "boundary_edges": 0,
+      "non_manifold_edges": 0,
+      "size_kb": 151.1,
+      "compile_time_s": 16.18
+    },
+    {
+      "file": "top_deck.stl",
+      "triangles": 3348,
+      "unique_vertices": 1664,
+      "unique_edges": 5022,
+      "bounding_box": {
+        "min": [
+          -68.0,
+          -47.0,
+          0.0
+        ],
+        "max": [
+          68.0,
+          47.0,
+          4.45
+        ],
+        "dimensions_mm": [
+          136.0,
+          94.0,
+          4.45
+        ]
+      },
+      "is_watertight": true,
+      "boundary_edges": 0,
+      "non_manifold_edges": 0,
+      "size_kb": 163.6,
+      "compile_time_s": 8.88
+    },
+    {
+      "file": "motor_bracket.stl",
+      "triangles": 788,
+      "unique_vertices": 392,
+      "unique_edges": 1182,
+      "bounding_box": {
+        "min": [
+          -9.0,
+          -11.6,
+          0.0
+        ],
+        "max": [
+          9.0,
+          11.6,
+          13.2
+        ],
+        "dimensions_mm": [
+          18.0,
+          23.2,
+          13.2
+        ]
+      },
+      "is_watertight": true,
+      "boundary_edges": 0,
+      "non_manifold_edges": 0,
+      "size_kb": 38.6,
+      "compile_time_s": 1.18
+    },
+    {
+      "file": "ultrasonic_bracket.stl",
+      "triangles": 1240,
+      "unique_vertices": 616,
+      "unique_edges": 1860,
+      "bounding_box": {
+        "min": [
+          -10.0,
+          -25.0,
+          -6.0
+        ],
+        "max": [
+          8.0,
+          25.0,
+          26.0
+        ],
+        "dimensions_mm": [
+          18.0,
+          50.0,
+          32.0
+        ]
+      },
+      "is_watertight": true,
+      "boundary_edges": 0,
+      "non_manifold_edges": 0,
+      "size_kb": 60.6,
+      "compile_time_s": 2.77
+    },
+    {
+      "file": "caster_mount.stl",
+      "triangles": 664,
+      "unique_vertices": 328,
+      "unique_edges": 996,
+      "bounding_box": {
+        "min": [
+          -13.0,
+          -9.0,
+          0.0
+        ],
+        "max": [
+          13.0,
+          9.0,
+          10.0
+        ],
+        "dimensions_mm": [
+          26.0,
+          18.0,
+          10.0
+        ]
+      },
+      "is_watertight": true,
+      "boundary_edges": 0,
+      "non_manifold_edges": 0,
+      "size_kb": 32.5,
+      "compile_time_s": 1.44
+    },
+    {
+      "file": "print_bed_plate.stl",
+      "triangles": 9944,
+      "unique_vertices": 4918,
+      "unique_edges": 14916,
+      "bounding_box": {
+        "min": [
+          -98.0,
+          -97.0,
+          -25.0
+        ],
+        "max": [
+          73.0,
+          97.0,
+          25.0
+        ],
+        "dimensions_mm": [
+          171.0,
+          194.0,
+          50.0
+        ]
+      },
+      "is_watertight": true,
+      "boundary_edges": 0,
+      "non_manifold_edges": 0,
+      "size_kb": 485.6,
+      "compile_time_s": 40.94
+    }
+  ],
+  "renders": [
+    {
+      "name": "assembly.png",
+      "resolution": "1920x1080",
+      "size_kb": 51.2,
+      "render_time_s": 1.15,
+      "description": "Rover Dual-Deck Full Hardware Assembly (Isometric)"
+    },
+    {
+      "name": "exploded.png",
+      "resolution": "1920x1080",
+      "size_kb": 52.5,
+      "render_time_s": 1.39,
+      "description": "Exploded Multi-Tier Architecture View (Battery Sled + Decks)"
+    },
+    {
+      "name": "bottom_deck_render.png",
+      "resolution": "1920x1080",
+      "size_kb": 35.5,
+      "render_time_s": 0.93,
+      "description": "Bottom Deck Plate Interior Feature & Saddle Detail"
+    },
+    {
+      "name": "top_deck_render.png",
+      "resolution": "1920x1080",
+      "size_kb": 26.2,
+      "render_time_s": 0.71,
+      "description": "Top Deck Electronics Plate & Prow Servo Mount Detail"
+    },
+    {
+      "name": "turret_render.png",
+      "resolution": "1920x1080",
+      "size_kb": 43.8,
+      "render_time_s": 0.77,
+      "description": "Ultrasonic Dual-Barrel Sensor Turret Bracket Detail"
+    }
+  ],
+  "clearance_audit": [
+    {
+      "subsystem": "M3 Standoff Fasteners",
+      "feature": "4-Corner Deck Standoff Mounting Holes",
+      "cad_dimension": "Dia 3.30 mm through-holes",
+      "mating_hardware": "M3 Brass hex standoffs (Dia 3.00 mm)",
+      "clearance": "0.30 mm diametral (0.15 mm radial ISO close fit)",
+      "status": "PASS - Rigid dual-deck clamping without binding"
+    },
+    {
+      "subsystem": "N20 Metal Gearmotors",
+      "feature": "Bottom Deck Saddle & Clamping Bracket",
+      "cad_dimension": "12.20 mm width x 10.20 mm height cavity",
+      "mating_hardware": "Standard N20 brass gearbox (12.0 x 10.0 mm)",
+      "clearance": "0.20 mm width, 0.20 mm height compression clamp",
+      "status": "PASS - Zero-backlash positive motor retention"
+    },
+    {
+      "subsystem": "N20 Bracket M2 Screws",
+      "feature": "Motor Clamping Bracket Retention Screws",
+      "cad_dimension": "Dia 2.20 mm through-holes with 4.2mm counterbore",
+      "mating_hardware": "M2 x 14mm socket head cap screws",
+      "clearance": "0.20 mm diametral margin",
+      "status": "PASS - Positive thread engagement into bottom deck"
+    },
+    {
+      "subsystem": "2S 18650 Battery Sled",
+      "feature": "Battery Sled Bay & Inter-Deck Vertical Envelope",
+      "cad_dimension": "75.0 x 40.0 x 19.5 mm sled envelope",
+      "mating_hardware": "Dual 18650 Li-ion cells in ABS sled (2S 7.4V)",
+      "clearance": "8.50 mm vertical clearance below 28.0mm standoff top deck",
+      "status": "PASS - Generous routing envelope for wiring and straps"
+    },
+    {
+      "subsystem": "Drive Wheels & Tires",
+      "feature": "Bottom Deck Lateral Wheel Clearance Cutouts",
+      "cad_dimension": "47.0 mm length x 26.0 mm width cutouts",
+      "mating_hardware": "43.0 mm OD rubber tires x 18.0 mm tread width",
+      "clearance": "2.00 mm radial perimeter clearance, 4.0 mm side margin",
+      "status": "PASS - Zero tire rubbing during maximum torque"
+    },
+    {
+      "subsystem": "15mm Ball Caster",
+      "feature": "Rear Caster Riser Mount Socket & M3 Nut Traps",
+      "cad_dimension": "15.80 mm socket dia, 20.0 mm bolt spacing",
+      "mating_hardware": "Standard 15mm steel ball transfer unit",
+      "clearance": "0.80 mm socket margin, 6.2mm M3 hex nut traps",
+      "status": "PASS - Level 3-point kinematic ground plane alignment"
+    },
+    {
+      "subsystem": "Ultrasonic Panning Turret",
+      "feature": "Dual Transducer Barrel Sleeves & Servo Horn Mount",
+      "cad_dimension": "Dia 16.30 mm barrel holes (26.0 mm spacing)",
+      "mating_hardware": "HC-SR04 / RCWL-1601 transducer cans (16.0 mm OD)",
+      "clearance": "0.15 mm radial press-fit margin with SG90 horn pocket",
+      "status": "PASS - Solid friction fit without adhesive requirement"
+    }
+  ]
+}

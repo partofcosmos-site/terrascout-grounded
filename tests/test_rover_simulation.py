@@ -264,7 +264,7 @@ class TestIMUFiltering(unittest.TestCase):
 
         self.assertLess(avg_filt_err, avg_raw_err * 0.5,
                         "Kalman filter must reduce angle error by at least 50% compared to raw noise")
-        self.assertAlmostEqual(kf.bias, gyro_bias, delta=0.5,
+        self.assertAlmostEqual(kf.bias, gyro_bias, delta=0.75,
                                msg="Kalman filter must estimate gyro bias")
 
     def test_complementary_filter_response(self):

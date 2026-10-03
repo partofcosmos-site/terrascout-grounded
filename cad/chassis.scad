@@ -83,10 +83,10 @@ module rounded_rect_2d(length, width, r) {
 }
 
 // 4-corner M3 standoff pattern
-module standoff_holes(x_span, y_span, dia, depth=10) {
+module standoff_holes(x_span, y_span, dia, depth=30) {
     for (sx = [-1, 1]) {
         for (sy = [-1, 1]) {
-            translate([sx * x_span/2, sy * y_span/2, -depth/2])
+            translate([sx * x_span/2, sy * y_span/2, 0])
                 cylinder(d=dia, h=depth, center=true);
         }
     }
@@ -196,51 +196,51 @@ module top_deck() {
         standoff_holes(standoff_x_span, standoff_y_span, hole_m3_dia, depth=deck_thickness*4);
 
         // 2. Forward SG90 Servo cutout & mounting ear screw holes
-        translate([servo_offset_x, 0, -1]) {
+        translate([servo_offset_x, 0, 0]) {
             // Center body pocket
-            cube([servo_body_l, servo_body_w, deck_thickness + 4], center=true);
+            cube([servo_body_l, servo_body_w, 30], center=true);
             // Flange screw holes (M2)
             translate([-servo_flange_l/2 + 2.5, 0, 0])
-                cylinder(d=hole_m2_dia, h=deck_thickness + 4, center=true);
+                cylinder(d=hole_m2_dia, h=30, center=true);
             translate([ servo_flange_l/2 - 2.5, 0, 0])
-                cylinder(d=hole_m2_dia, h=deck_thickness + 4, center=true);
+                cylinder(d=hole_m2_dia, h=30, center=true);
         }
 
         // 3. Raspberry Pi Pico / MCU mounting holes (51mm x 21mm, holes at 47mm x 11.4mm)
-        translate([-12, 0, -1]) {
+        translate([-12, 0, 0]) {
             for (mx = [-23.5, 23.5]) {
                 for (my = [-5.7, 5.7]) {
                     translate([mx, my, 0])
-                        cylinder(d=hole_m2_dia, h=deck_thickness + 4, center=true);
+                        cylinder(d=hole_m2_dia, h=30, center=true);
                 }
             }
         }
 
         // 4. SSD1306 0.96" OLED HUD mounting holes (23.5mm x 23.5mm square pattern)
-        translate([28, -22, -1]) {
+        translate([28, -22, 0]) {
             for (ox = [-11.75, 11.75]) {
                 for (oy = [-11.75, 11.75]) {
                     translate([ox, oy, 0])
-                        cylinder(d=hole_m2_dia, h=deck_thickness + 4, center=true);
+                        cylinder(d=hole_m2_dia, h=30, center=true);
                 }
             }
             // Screen view/cable clearance slot
-            cube([18, 12, deck_thickness + 4], center=true);
+            cube([18, 12, 30], center=true);
         }
 
         // 5. BME280 Environmental Sensor mounting pattern (15mm spacing)
-        translate([28, 22, -1]) {
-            translate([-7.5, 0, 0]) cylinder(d=hole_m2_dia, h=deck_thickness + 4, center=true);
-            translate([ 7.5, 0, 0]) cylinder(d=hole_m2_dia, h=deck_thickness + 4, center=true);
+        translate([28, 22, 0]) {
+            translate([-7.5, 0, 0]) cylinder(d=hole_m2_dia, h=30, center=true);
+            translate([ 7.5, 0, 0]) cylinder(d=hole_m2_dia, h=30, center=true);
             // Sensing vent hole
-            cylinder(d=6.0, h=deck_thickness + 4, center=true);
+            cylinder(d=6.0, h=30, center=true);
         }
 
         // 6. Center wire harness passthrough
-        translate([-12, -26, -1])
-            cube([16, 8, deck_thickness + 4], center=true);
-        translate([-12,  26, -1])
-            cube([16, 8, deck_thickness + 4], center=true);
+        translate([-12, -26, 0])
+            cube([16, 8, 30], center=true);
+        translate([-12,  26, 0])
+            cube([16, 8, 30], center=true);
 
         // 7. Rear deck hexagonal ventilation array
         translate([-42, 0, 0])
@@ -582,7 +582,7 @@ module print_bed_layout() {
 // Execution Switch
 // ==============================================================================
 if (part_id == 1 || render_mode == "exploded") {
-    full_assembly(explode_dist=25);
+    full_assembly(explode_dist=48);
 } else if (part_id == 2 || render_mode == "bottom_deck") {
     bottom_deck();
 } else if (part_id == 3 || render_mode == "top_deck") {
