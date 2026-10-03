@@ -720,27 +720,36 @@ class TelemetryHTTPHandler(BaseHTTPRequestHandler):
         path = url.path
 
         if path == "/" or path == "/index.html":
+            body = DASHBOARD_HTML.encode("utf-8")
             self.send_response(200)
             self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.send_header("Connection", "close")
             self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
-            self.wfile.write(DASHBOARD_HTML.encode("utf-8"))
+            self.wfile.write(body)
 
         elif path == "/api/telemetry":
+            data = STORE.get_telemetry()
+            body = json.dumps(data).encode("utf-8")
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.send_header("Connection", "close")
             self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
-            data = STORE.get_telemetry()
-            self.wfile.write(json.dumps(data).encode("utf-8"))
+            self.wfile.write(body)
 
         elif path == "/api/grid":
+            grid = STORE.get_grid()
+            body = json.dumps(grid).encode("utf-8")
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.send_header("Connection", "close")
             self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
-            grid = STORE.get_grid()
-            self.wfile.write(json.dumps(grid).encode("utf-8"))
+            self.wfile.write(body)
 
         elif path == "/api/stream":
             # Server-Sent Events (SSE) live push stream
