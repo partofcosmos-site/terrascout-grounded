@@ -1,0 +1,32 @@
+# MicroPython & Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+.venv/
+venv/
+env/
+
+# Editor & OS artifacts
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*~
+
+# Microcontroller Mounts & Drive Artifacts (CircuitPython / USB drive)
+.fseventsd
+.Spotlight-V100
+.Trashes
+.metadata_never_index
+
+# CAD temporary files & render caches
+*.deps
+cad/*.tmp
+cad/*.cache
+
+# Logs & scratch
+*.log
+scratch/
