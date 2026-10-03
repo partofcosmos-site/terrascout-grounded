@@ -388,7 +388,7 @@ class TestArenaSimulationAndCollisionAvoidance(unittest.TestCase):
         rover.sm.change_state(rover.sm.STATE_CRUISE)
         rover.sm.state_enter_time = -10000
 
-        # Connect physics hooks
+        set_simulated_time_ms(0)
         dt = 0.025
         steps = 800  # 20.0 seconds of autonomous exploration
         collisions_detected = 0
@@ -396,32 +396,37 @@ class TestArenaSimulationAndCollisionAvoidance(unittest.TestCase):
         distance_traversed = 0.0
         last_x, last_y = physics.x, physics.y
 
-        for _ in range(steps):
-            # 1. Update ultrasonic reading from arena raycaster
-            sonar_angle_rad = physics.heading_rad + math.radians(rover.servo.current_angle)
-            ray_dist = arena.cast_ray(physics.x, physics.y, sonar_angle_rad)
-            rover.ultrasonic._sim_distance = ray_dist
+        try:
+            for step in range(steps):
+                set_simulated_time_ms(step * 25)
 
-            # 2. Update IMU gyro rate
-            rover.mpu.sim_yaw_rate = physics.yaw_rate_dps
+                # 1. Update ultrasonic reading from arena raycaster
+                sonar_angle_rad = physics.heading_rad + math.radians(rover.servo.current_angle)
+                ray_dist = arena.cast_ray(physics.x, physics.y, sonar_angle_rad)
+                rover.ultrasonic._sim_distance = ray_dist
 
-            # 3. Advance rover firmware state machine
-            rover.run_step()
+                # 2. Update IMU gyro rate
+                rover.mpu.sim_yaw_rate = physics.yaw_rate_dps
 
-            # 4. Advance physics with commanded motor duties
-            duty_l = rover.drive.actual_left
-            duty_r = rover.drive.actual_right
-            physics.step(duty_l, duty_r, dt=dt)
+                # 3. Advance rover firmware state machine
+                rover.run_step()
 
-            # Check collision
-            hit, clearance = arena.check_collision(physics.x, physics.y)
-            if hit:
-                collisions_detected += 1
-            if clearance < min_clearance_recorded:
-                min_clearance_recorded = clearance
+                # 4. Advance physics with commanded motor duties
+                duty_l = rover.drive.actual_left
+                duty_r = rover.drive.actual_right
+                physics.step(duty_l, duty_r, dt=dt)
 
-            distance_traversed += math.hypot(physics.x - last_x, physics.y - last_y)
-            last_x, last_y = physics.x, physics.y
+                # Check collision
+                hit, clearance = arena.check_collision(physics.x, physics.y)
+                if hit:
+                    collisions_detected += 1
+                if clearance < min_clearance_recorded:
+                    min_clearance_recorded = clearance
+
+                distance_traversed += math.hypot(physics.x - last_x, physics.y - last_y)
+                last_x, last_y = physics.x, physics.y
+        finally:
+            set_simulated_time_ms(None)
 
         self.assertEqual(collisions_detected, 0,
                          f"Zero collisions allowed! Detected {collisions_detected} collisions.")
@@ -528,49 +533,53 @@ def generate_telemetry_benchmark_asset(output_path="assets/telemetry_benchmark.p
     cum_raw_heading = 90.0
     gyro_drift_rate = 0.08 # deg/s
 
-    for step in range(total_steps):
-        t_sec = step * dt
-        time_series.append(t_sec)
+    try:
+        for step in range(total_steps):
+            set_simulated_time_ms(step * 25)
+            t_sec = step * dt
+            time_series.append(t_sec)
 
-        # Ultrasonic raycast
-        sonar_angle_rad = physics.heading_rad + math.radians(rover.servo.current_angle)
-        ray_dist = arena.cast_ray(physics.x, physics.y, sonar_angle_rad)
-        rover.ultrasonic._sim_distance = ray_dist
+            # Ultrasonic raycast
+            sonar_angle_rad = physics.heading_rad + math.radians(rover.servo.current_angle)
+            ray_dist = arena.cast_ray(physics.x, physics.y, sonar_angle_rad)
+            rover.ultrasonic._sim_distance = ray_dist
 
-        # Record radar hits when obstacle within 150cm
-        if ray_dist < 150.0 and step % 4 == 0:
-            hit_x = physics.x + ray_dist * math.cos(sonar_angle_rad)
-            hit_y = physics.y + ray_dist * math.sin(sonar_angle_rad)
-            radar_pings_x.append(hit_x)
-            radar_pings_y.append(hit_y)
+            # Record radar hits when obstacle within 150cm
+            if ray_dist < 150.0 and step % 4 == 0:
+                hit_x = physics.x + ray_dist * math.cos(sonar_angle_rad)
+                hit_y = physics.y + ray_dist * math.sin(sonar_angle_rad)
+                radar_pings_x.append(hit_x)
+                radar_pings_y.append(hit_y)
 
-        # IMU simulation
-        physics_dps = physics.yaw_rate_dps
-        rover.mpu.sim_yaw_rate = physics_dps
+            # IMU simulation
+            physics_dps = physics.yaw_rate_dps
+            rover.mpu.sim_yaw_rate = physics_dps
 
-        # Raw gyro integration with drift
-        cum_raw_heading += (physics_dps + gyro_drift_rate + random.gauss(0.0, 0.4)) * dt
+            # Raw gyro integration with drift
+            cum_raw_heading += (physics_dps + gyro_drift_rate + random.gauss(0.0, 0.4)) * dt
 
-        # Advance rover
-        rover.run_step()
+            # Advance rover
+            rover.run_step()
 
-        # Step physics
-        sagged_v = physics.step(rover.drive.actual_left, rover.drive.actual_right, dt=dt)
-        rover.battery._adc.set_voltage(sagged_v)
+            # Step physics
+            sagged_v = physics.step(rover.drive.actual_left, rover.drive.actual_right, dt=dt)
+            rover.battery._adc.set_voltage(sagged_v)
 
-        # Record metrics
-        target_speeds.append(rover.speed_ramp.target_speed)
-        actual_speeds.append(physics.actual_speed)
-        distances.append(ray_dist)
-        true_headings.append(math.degrees(physics.heading_rad))
-        kalman_headings.append(rover.imu.heading)
-        raw_headings.append(cum_raw_heading)
-        battery_volts.append(sagged_v)
-        motor_pwms_l.append(rover.drive.actual_left)
-        motor_pwms_r.append(rover.drive.actual_right)
-        states.append(rover.sm.state)
-        traj_x.append(physics.x)
-        traj_y.append(physics.y)
+            # Record metrics
+            target_speeds.append(rover.speed_ramp.target_speed)
+            actual_speeds.append(physics.actual_speed)
+            distances.append(ray_dist)
+            true_headings.append(math.degrees(physics.heading_rad))
+            kalman_headings.append(rover.imu.heading)
+            raw_headings.append(cum_raw_heading)
+            battery_volts.append(sagged_v)
+            motor_pwms_l.append(rover.drive.actual_left)
+            motor_pwms_r.append(rover.drive.actual_right)
+            states.append(rover.sm.state)
+            traj_x.append(physics.x)
+            traj_y.append(physics.y)
+    finally:
+        set_simulated_time_ms(None)
 
     # Setup publication-grade styling
     plt.style.use("dark_background")

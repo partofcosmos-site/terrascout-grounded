@@ -1,7 +1,4 @@
-import json
-import os
-
-pro_data = {
+{
   "meta": {
     "filename": "terrascout.kicad_pro",
     "version": 1
@@ -17,10 +14,10 @@ pro_data = {
       "default_line_thickness": 6.0,
       "default_text_size": 50.0,
       "field_names": [],
-      "intersheets_ref_own_page": False,
+      "intersheets_ref_own_page": false,
       "intersheets_ref_prefix": "",
-      "intersheets_ref_short": False,
-      "intersheets_ref_show": True,
+      "intersheets_ref_short": false,
+      "intersheets_ref_show": true,
       "intersheets_ref_suffix": "",
       "junction_size_choice": 3,
       "pin_symbol_size": 0.0,
@@ -85,9 +82,3 @@ pro_data = {
     ]
   ]
 }
-
-sch_dir = 'C:/Users/white/terrascout-grounded/hardware/schematics'
-with open(os.path.join(sch_dir, 'terrascout.kicad_pro'), 'w', encoding='utf-8') as f:
-    json.dump(pro_data, f, indent=2)
-
-print("Created terrascout.kicad_pro")

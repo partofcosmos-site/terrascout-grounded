@@ -47,7 +47,8 @@ Designed specifically within the Hack Club Grounded grant framework, TerraScout 
 | **Sept 25, 2026** | **Session 4 (MS-03)** | OpenSCAD parametric chassis design, motor saddle tolerancing & 3D print bed dialing | 5.5 hrs | 20.0 hrs |
 | **Sept 28, 2026** | **Session 5 (MS-03)** | FDM print iterations, captive hex nut traps, caster risers & physical assembly | 5.0 hrs | 25.0 hrs |
 | **Oct 01, 2026** | **Session 6 (MS-04)** | MicroPython HAL development, discrete PID loops, carpet friction tuning & filter math | 7.5 hrs | 32.5 hrs |
-| **Oct 03, 2026** | **Session 7 (MS-05)** | Radar sweep FSM, OLED HUD rendering, JSON telemetry streaming & JLCPCB cart audit | 6.0 hrs | **38.5 hrs** |
+| **Oct 03, 2026** | **Session 7 (MS-05)** | Radar sweep FSM, OLED HUD rendering, JSON telemetry streaming & JLCPCB cart audit | 6.0 hrs | 38.5 hrs |
+| **Oct 03, 2026** | **Session 8 (MS-06)** | Autonomous 2-Layer PCB Layout & Routing Engine (100x80mm), JLCPCB Gerbers (`gerbers.zip`), Excellon drill, 80x60mm M3 bolt pattern matching CAD, PyGerber / 3D renders, and DRC verification gate | 8.5 hrs | **47.0 hrs** |
 
 ---
 

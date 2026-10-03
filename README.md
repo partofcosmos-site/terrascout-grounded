@@ -201,6 +201,27 @@ terrascout-grounded/
 │   ├── grounded_grant_proposal.pdf    # Compiled printable 5-page executive grant proposal
 │   └── cart.png                       # High-resolution image asset for Typst proposal
 ├── hardware/
+│   ├── pcb/                           # Custom 2-Layer FR-4 Motherboard (100x80mm)
+│   │   ├── gerbers.zip                # Complete JLCPCB production zip archive
+│   │   ├── TerraScout_F_Cu.gtl        # Top Copper RS-274X Gerber
+│   │   ├── TerraScout_B_Cu.gbl        # Bottom Copper RS-274X Gerber
+│   │   ├── TerraScout_F_Mask.gts      # Top Solder Mask Gerber
+│   │   ├── TerraScout_B_Mask.gbs      # Bottom Solder Mask Gerber
+│   │   ├── TerraScout_F_Silkscreen.gto# Top Silkscreen Gerber
+│   │   ├── TerraScout_B_Silkscreen.gbo# Bottom Silkscreen Gerber
+│   │   ├── TerraScout_Edge_Cuts.gko   # Board Outline Gerber (100x80mm)
+│   │   ├── TerraScout.drl             # Excellon CNC Drill program
+│   │   ├── terrascout.kicad_pcb       # Native KiCad 7/8 PCB layout
+│   │   ├── bom.csv                    # Itemized LCSC BOM spreadsheet
+│   │   ├── cpl.csv                    # Centroid Pick-and-Place data
+│   │   ├── drc_report.json            # Automated DRC results (0 defects)
+│   │   ├── generate_pcb.py            # Complete autonomous PCB layout engine
+│   │   ├── pcb_drc_check.py           # Standalone DRC verification gate
+│   │   ├── PCB_DESIGN_REPORT.md       # Comprehensive PCB engineering report
+│   │   ├── render_2d_top_composite.png# High-res 2D composite top view
+│   │   ├── render_2d_bottom_composite.png# High-res 2D composite bottom view
+│   │   ├── render_3d_top_isometric.png# 3D isometric assembled board preview
+│   │   └── render_3d_bottom_isometric.png# 3D isometric bottom board preview
 │   ├── schematic.typ                  # Typst source for master electrical schematic
 │   ├── schematic.pdf                  # 2-sheet ISO A4 vector electrical schematic (0 defects)
 │   ├── schematic_preview-1.png        # High-res preview of Schematic Sheet 1
