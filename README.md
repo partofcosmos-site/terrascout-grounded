@@ -52,6 +52,13 @@
   <em>Figure 3: Power regulation, battery telemetry divider, and motor H-bridge driver schematic (Sheet 1). <a href="hardware/schematic.pdf">Download complete 2-sheet vector PDF here</a>.</em>
 </p>
 
+### 4. Closed-Loop Telemetry & Physics Benchmark
+<p align="center">
+  <a href="assets/telemetry_benchmark.png"><img src="assets/telemetry_benchmark.png" alt="TerraScout Closed-Loop Telemetry Benchmark" width="95%" /></a>
+  <br />
+  <em>Figure 4: 1000-tick closed-loop simulation benchmark verifying Kalman filtered IMU pitch/roll/heading, discrete PID speed tracking, and 2D occupancy grid obstacle avoidance.</em>
+</p>
+
 ---
 
 ## 💰 Hack Club Grounded Financial Audit & Budget Breakdown

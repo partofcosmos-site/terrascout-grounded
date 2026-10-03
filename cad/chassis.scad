@@ -433,6 +433,39 @@ module mock_mcu_pico() {
         cube([12, 12, 1.8], center=true);
 }
 
+module mock_18650_battery_sled() {
+    sled_l = 75.0;
+    sled_w = 40.0;
+    sled_h = 19.5;
+
+    // Black ABS plastic battery tray sled
+    color([0.15, 0.15, 0.18]) {
+        difference() {
+            translate([0, 0, sled_h/2])
+                cube([sled_l, sled_w, sled_h], center=true);
+            // Cell bay hollows
+            for (cy = [-9.5, 9.5]) {
+                translate([0, cy, sled_h/2 + 2])
+                    rotate([0, 90, 0])
+                    cylinder(d=18.6, h=67, center=true);
+            }
+        }
+    }
+
+    // 2x 18650 Li-ion Cells (Cyan/Green jacket)
+    for (cy = [-9.5, 9.5]) {
+        color([0.1, 0.75, 0.45]) // Samsung/Panasonic 18650 green jacket
+            translate([0, cy, 18.4/2 + 1.2])
+            rotate([0, 90, 0])
+            cylinder(d=18.4, h=65.0, center=true);
+        // Nickel plated terminals (+ / -)
+        color([0.85, 0.85, 0.9])
+            translate([33.0, cy, 18.4/2 + 1.2])
+            rotate([0, 90, 0])
+            cylinder(d=7.0, h=1.5, center=true);
+    }
+}
+
 module mock_standoff(height=28) {
     color([0.85, 0.75, 0.2]) // Brass hex standoffs
         rotate([0, 0, 30])
@@ -446,6 +479,10 @@ module full_assembly(explode_dist=0) {
     // 1. Bottom Deck Plate
     color([0.2, 0.25, 0.3])
         bottom_deck();
+
+    // 1b. 2S 18650 Battery Sled & Power Subsystem
+    translate([-5, 0, deck_thickness + explode_dist * 0.2])
+        mock_18650_battery_sled();
 
     // 2. Brass Standoffs (4x)
     for (sx = [-1, 1]) {

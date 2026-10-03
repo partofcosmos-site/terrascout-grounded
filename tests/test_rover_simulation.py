@@ -117,8 +117,8 @@ class VirtualArena:
             if abs(cross) < 1e-6:
                 continue
 
-            t1 = (v2_x * v1_y - v2_y * v1_x) / cross
-            t2 = (dx * v1_y - dy * v1_x) / cross
+            t1 = (v1_x * v2_y - v1_y * v2_x) / cross
+            t2 = (dy * v1_x - dx * v1_y) / cross
             if t1 >= 0.0 and 0.0 <= t2 <= 1.0:
                 if t1 < min_dist:
                     min_dist = t1
@@ -388,6 +388,11 @@ class TestArenaSimulationAndCollisionAvoidance(unittest.TestCase):
         rover.sm.change_state(rover.sm.STATE_CRUISE)
         rover.sm.state_enter_time = -10000
 
+        # Bind dynamic raycasting callback to rover ultrasonic sensor
+        rover.ultrasonic._sim_distance = lambda: arena.cast_ray(
+            physics.x, physics.y, physics.heading_rad + math.radians(rover.servo.current_angle)
+        )
+
         set_simulated_time_ms(0)
         dt = 0.025
         steps = 800  # 20.0 seconds of autonomous exploration
@@ -400,12 +405,7 @@ class TestArenaSimulationAndCollisionAvoidance(unittest.TestCase):
             for step in range(steps):
                 set_simulated_time_ms(step * 25)
 
-                # 1. Update ultrasonic reading from arena raycaster
-                sonar_angle_rad = physics.heading_rad + math.radians(rover.servo.current_angle)
-                ray_dist = arena.cast_ray(physics.x, physics.y, sonar_angle_rad)
-                rover.ultrasonic._sim_distance = ray_dist
-
-                # 2. Update IMU gyro rate
+                # 1. Update IMU gyro rate
                 rover.mpu.sim_yaw_rate = physics.yaw_rate_dps
 
                 # 3. Advance rover firmware state machine
@@ -712,8 +712,10 @@ def generate_telemetry_benchmark_asset(output_path="assets/telemetry_benchmark.p
 
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     plt.savefig(output_path, facecolor=fig.get_facecolor(), edgecolor="none", bbox_inches="tight")
+    svg_path = os.path.splitext(output_path)[0] + ".svg"
+    plt.savefig(svg_path, facecolor=fig.get_facecolor(), edgecolor="none", bbox_inches="tight")
     plt.close()
-    print(f"[BENCHMARK] Telemetry benchmark saved successfully to {output_path} ({os.path.getsize(output_path):,} bytes).")
+    print(f"[BENCHMARK] Telemetry benchmark saved successfully to {output_path} ({os.path.getsize(output_path):,} bytes) and {svg_path} ({os.path.getsize(svg_path):,} bytes).")
 
 
 # ==============================================================================

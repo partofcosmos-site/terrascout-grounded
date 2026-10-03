@@ -1030,6 +1030,8 @@ class UltrasonicSensor:
     def read_single_cm(self):
         """Triggers a single 10us ultrasonic burst and measures pulse width."""
         if not IS_EMBEDDED:
+            if callable(self._sim_distance):
+                return float(self._sim_distance())
             return self._sim_distance
 
         self.trig.value(0)
