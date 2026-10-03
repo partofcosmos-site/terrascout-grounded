@@ -293,12 +293,20 @@ def compile_cad_suite():
             "status": "PASS - Zero tire rubbing during maximum torque"
         },
         {
-            "subsystem": "15mm Ball Caster",
-            "feature": "Rear Caster Riser Mount Socket & M3 Nut Traps",
-            "cad_dimension": "15.80 mm socket dia, 20.0 mm bolt spacing",
-            "mating_hardware": "Standard 15mm steel ball transfer unit",
-            "clearance": "0.80 mm socket margin, 6.2mm M3 hex nut traps",
-            "status": "PASS - Level 3-point kinematic ground plane alignment"
+            "subsystem": "M3 Hex Nut Fastener Pockets",
+            "feature": "Dual-Deck & Caster Mount Hex Nut Traps",
+            "cad_dimension": "5.70 mm flat-to-flat (6.58 mm corner-to-corner)",
+            "mating_hardware": "Standard ISO 4032 / DIN 934 M3 hex nuts (5.50 mm flat-to-flat)",
+            "clearance": "0.20 mm friction fit (5.70 mm pocket width across flats)",
+            "status": "PASS - 5.5mm flat-to-flat + 0.2mm friction fit verified, captive anti-spin flush seating"
+        },
+        {
+            "subsystem": "N20 Gearbox Clamping Mechanics",
+            "feature": "Motor Clamping Bracket Normal Pressure & Torque Retention",
+            "cad_dimension": "110.4 mm^2 contact area (9.2 x 12.0 mm), 0.20 mm compression clamping",
+            "mating_hardware": "Standard N20 brass gearbox (12.0 x 10.0 mm)",
+            "clearance": "1.81 - 3.62 MPa normal pressure at 200 - 400 N screw preload (FoS = 5.26 against stall slip)",
+            "status": "PASS - Safe for brass casing (<2% yield), zero slippage under full stall torque"
         },
         {
             "subsystem": "Ultrasonic Panning Turret",

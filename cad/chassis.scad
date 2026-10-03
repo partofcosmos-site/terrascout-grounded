@@ -33,6 +33,13 @@ standoff_y_span   = 76.0;    // Center-to-center distance in Y (mm)
 hole_m3_dia       = 3.3;     // Clearance hole for M3 screw/standoff (mm)
 hole_m2_dia       = 2.2;     // Clearance hole for M2 screws (mm)
 
+/* [Fastener Tolerances & Nut Pockets] */
+m3_nut_flat_nominal = 5.5;    // Nominal M3 hex nut width across flats (ISO 4032 / DIN 934) (mm)
+m3_nut_friction_tol = 0.2;    // Friction-fit clearance tolerance (mm)
+m3_nut_flat         = m3_nut_flat_nominal + m3_nut_friction_tol; // 5.7 mm flat-to-flat
+m3_nut_corner_dia   = m3_nut_flat / cos(30);                     // 6.582 mm corner-to-corner for OpenSCAD $fn=6
+m3_nut_depth        = 2.4;                                       // Standard M3 hex nut thickness (mm)
+
 /* [N20 Gear Motor Specifications] */
 n20_body_w        = 12.2;    // Motor cross-section width (mm)
 n20_body_h        = 10.2;    // Motor cross-section height (mm)
@@ -82,12 +89,18 @@ module rounded_rect_2d(length, width, r) {
     }
 }
 
-// 4-corner M3 standoff pattern
-module standoff_holes(x_span, y_span, dia, depth=30) {
+// 4-corner M3 standoff pattern with M3 hex nut pockets
+module standoff_holes(x_span, y_span, dia, depth=30, with_nut_pockets=false, nut_z=0, nut_h=2.0) {
     for (sx = [-1, 1]) {
         for (sy = [-1, 1]) {
-            translate([sx * x_span/2, sy * y_span/2, 0])
+            translate([sx * x_span/2, sy * y_span/2, 0]) {
                 cylinder(d=dia, h=depth, center=true);
+                if (with_nut_pockets) {
+                    translate([0, 0, nut_z])
+                        rotate([0, 0, 30])
+                        cylinder(d=m3_nut_corner_dia, h=nut_h, $fn=6);
+                }
+            }
         }
     }
 }
@@ -129,8 +142,8 @@ module bottom_deck() {
             }
         }
 
-        // 1. M3 Standoff mounting holes
-        standoff_holes(standoff_x_span, standoff_y_span, hole_m3_dia, depth=deck_thickness*4);
+        // 1. M3 Standoff mounting holes with underside hex nut pockets (5.5mm + 0.2mm friction fit)
+        standoff_holes(standoff_x_span, standoff_y_span, hole_m3_dia, depth=deck_thickness*4, with_nut_pockets=true, nut_z=-0.1, nut_h=1.8);
 
         // 2. Drive wheel clearance cutouts
         for (side = [-1, 1]) {
@@ -192,8 +205,8 @@ module top_deck() {
                 }
         }
 
-        // 1. M3 Standoff holes matching bottom deck
-        standoff_holes(standoff_x_span, standoff_y_span, hole_m3_dia, depth=deck_thickness*4);
+        // 1. M3 Standoff holes matching bottom deck with top-face hex nut pockets
+        standoff_holes(standoff_x_span, standoff_y_span, hole_m3_dia, depth=deck_thickness*4, with_nut_pockets=true, nut_z=deck_thickness - 1.7, nut_h=1.8);
 
         // 2. Forward SG90 Servo cutout & mounting ear screw holes
         translate([servo_offset_x, 0, 0]) {
@@ -353,11 +366,11 @@ module caster_mount() {
         translate([ caster_hole_dist/2, 0, -1])
             cylinder(d=hole_m3_dia, h=mount_h + 4);
 
-        // Nut traps on top face
+        // Nut traps on top face (5.5mm flat-to-flat with 0.2mm friction fit = 5.7mm flat-to-flat)
         translate([-caster_hole_dist/2, 0, mount_h - 2.8])
-            cylinder(d=6.2, h=4, $fn=6);
+            cylinder(d=m3_nut_corner_dia, h=4, $fn=6);
         translate([ caster_hole_dist/2, 0, mount_h - 2.8])
-            cylinder(d=6.2, h=4, $fn=6);
+            cylinder(d=m3_nut_corner_dia, h=4, $fn=6);
     }
 }
 
