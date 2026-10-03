@@ -1,0 +1,212 @@
+{
+  "project": "TerraScout Autonomous Planetary Rover",
+  "program": "Hack Club Grounded - Tier 1",
+  "version": "1.0",
+  "date": "2026-10-03",
+  "author": "Subagent 9: Grounded Project Architecture & Hardware Designer",
+  "components": [
+    {
+      "ref": "U1",
+      "package": "DIP-44",
+      "value": "ESP32-S3-DevKitC-1-N8R8",
+      "description": "Dual-Core Xtensa LX7 240MHz Wi-Fi/BLE MCU",
+      "pins": {
+        "3V3": "+3.3V",
+        "5V": "+5V_BUCK",
+        "GND1": "GND",
+        "GND2": "GND",
+        "GPIO1": "MOTOR_L_IN1",
+        "GPIO2": "MOTOR_L_IN2",
+        "GPIO4": "MOTOR_R_IN1",
+        "GPIO5": "MOTOR_R_IN2",
+        "GPIO6": "US_TRIG",
+        "GPIO7": "US_ECHO",
+        "GPIO8": "I2C_SDA",
+        "GPIO9": "I2C_SCL",
+        "GPIO10": "SERVO_PWM",
+        "GPIO11": "LINE_L_OUT",
+        "GPIO12": "LINE_C_OUT",
+        "GPIO13": "LINE_R_OUT",
+        "GPIO14": "BATT_ADC_SENSE",
+        "GPIO15": "MOTOR_NSLEEP"
+      }
+    },
+    {
+      "ref": "U2",
+      "package": "DIP-12",
+      "value": "DRV8833 Dual H-Bridge Driver Module",
+      "pins": {
+        "VM": "+8.4V_SWITCHED",
+        "GND": "GND",
+        "IN1": "MOTOR_L_IN1",
+        "IN2": "MOTOR_L_IN2",
+        "IN3": "MOTOR_R_IN1",
+        "IN4": "MOTOR_R_IN2",
+        "nSLEEP": "MOTOR_NSLEEP",
+        "OUT1": "MOTOR_L_OUT1",
+        "OUT2": "MOTOR_L_OUT2",
+        "OUT3": "MOTOR_R_OUT1",
+        "OUT4": "MOTOR_R_OUT2"
+      }
+    },
+    {
+      "ref": "U3",
+      "package": "MODULE_MP1584",
+      "value": "MP1584EN DC-DC 3A Buck Converter",
+      "pins": {
+        "IN+": "+8.4V_SWITCHED",
+        "IN-": "GND",
+        "OUT+": "+5V_BUCK",
+        "OUT-": "GND"
+      }
+    },
+    {
+      "ref": "U4",
+      "package": "MODULE_2S_BMS",
+      "value": "2S 8.4V 10A Li-ion BMS Protection Board",
+      "pins": {
+        "B+": "+8.4V_VBAT_RAW",
+        "BM": "VBAT_MID_TAP",
+        "B-": "GND",
+        "P+": "+8.4V_BMS_OUT",
+        "P-": "GND"
+      }
+    },
+    {
+      "ref": "U5",
+      "package": "MODULE_TP5100",
+      "value": "2S 8.4V 1A Type-C Balance Charger Module",
+      "pins": {
+        "BAT+": "+8.4V_VBAT_RAW",
+        "GND": "GND"
+      }
+    },
+    {
+      "ref": "J1",
+      "package": "HDR_1x4_2.54mm",
+      "value": "HC-SR04P Ultrasonic Sonar Header",
+      "pins": {
+        "1": "+3.3V",
+        "2": "US_TRIG",
+        "3": "US_ECHO",
+        "4": "GND"
+      }
+    },
+    {
+      "ref": "J2",
+      "package": "HDR_1x3_2.54mm",
+      "value": "SG90 Micro Servo Header",
+      "pins": {
+        "1": "GND",
+        "2": "+5V_BUCK",
+        "3": "SERVO_PWM"
+      }
+    },
+    {
+      "ref": "J3",
+      "package": "HDR_1x4_2.54mm",
+      "value": "SSD1306 0.96 OLED Header",
+      "pins": {
+        "1": "GND",
+        "2": "+3.3V",
+        "3": "I2C_SCL",
+        "4": "I2C_SDA"
+      }
+    },
+    {
+      "ref": "J4",
+      "package": "HDR_1x4_2.54mm",
+      "value": "BME280 Atmospheric Sensor Header",
+      "pins": {
+        "1": "+3.3V",
+        "2": "GND",
+        "3": "I2C_SCL",
+        "4": "I2C_SDA"
+      }
+    },
+    {
+      "ref": "J5",
+      "package": "HDR_1x5_2.54mm",
+      "value": "3-Ch TCRT5000 Line Tracker Header",
+      "pins": {
+        "1": "+3.3V",
+        "2": "GND",
+        "3": "LINE_L_OUT",
+        "4": "LINE_C_OUT",
+        "5": "LINE_R_OUT"
+      }
+    },
+    {
+      "ref": "SW1",
+      "package": "SW_KCD1",
+      "value": "KCD1 SPST Power Switch",
+      "pins": {
+        "1": "+8.4V_BMS_OUT",
+        "2": "+8.4V_SWITCHED"
+      }
+    },
+    {
+      "ref": "R1",
+      "package": "R0805",
+      "value": "100k 1%",
+      "pins": {
+        "1": "+8.4V_SWITCHED",
+        "2": "BATT_ADC_SENSE"
+      }
+    },
+    {
+      "ref": "R2",
+      "package": "R0805",
+      "value": "47k 1%",
+      "pins": {
+        "1": "BATT_ADC_SENSE",
+        "2": "GND"
+      }
+    },
+    {
+      "ref": "C1",
+      "package": "CAP_RADIAL_D8mm",
+      "value": "470uF 16V Low-ESR Electrolytic",
+      "pins": {
+        "1": "+8.4V_SWITCHED",
+        "2": "GND"
+      }
+    },
+    {
+      "ref": "C5",
+      "package": "C0805",
+      "value": "100nF 16V Ceramic",
+      "pins": {
+        "1": "BATT_ADC_SENSE",
+        "2": "GND"
+      }
+    }
+  ],
+  "nets": [
+    "GND",
+    "+8.4V_VBAT_RAW",
+    "VBAT_MID_TAP",
+    "+8.4V_BMS_OUT",
+    "+8.4V_SWITCHED",
+    "+5V_BUCK",
+    "+3.3V",
+    "MOTOR_L_IN1",
+    "MOTOR_L_IN2",
+    "MOTOR_R_IN1",
+    "MOTOR_R_IN2",
+    "MOTOR_NSLEEP",
+    "MOTOR_L_OUT1",
+    "MOTOR_L_OUT2",
+    "MOTOR_R_OUT1",
+    "MOTOR_R_OUT2",
+    "US_TRIG",
+    "US_ECHO",
+    "I2C_SDA",
+    "I2C_SCL",
+    "SERVO_PWM",
+    "LINE_L_OUT",
+    "LINE_C_OUT",
+    "LINE_R_OUT",
+    "BATT_ADC_SENSE"
+  ]
+}

@@ -1,0 +1,23 @@
+Item,Category,Description,Qty,Vendor,Vendor_SKU,URL,Unit_Price_INR,Unit_Price_USD,Extended_Total_USD,Function
+1,Microcontroller,ESP32-S3-DevKitC-1 N8R8 (Dual-Core 240MHz 8MB Flash 8MB PSRAM WiFi/BLE),1,Robu.in,1221764,https://robu.in/product/esp32-s3-devkitc-1-n8r8-development-board/,599.00,6.97,6.97,Main flight computer and telemetry webserver
+2,Motor Driver,DRV8833 Dual H-Bridge DC Motor Driver Module (2.7V-10.8V 1.5A/ch),1,Robu.in,699498,https://robu.in/product/drv8833-2-channel-dc-motor-driver/,79.00,0.92,0.92,Dual H-bridge motor driver
+3,Drive Motors,N20 Micro Metal Gear Motor 6V 300 RPM 3mm D-shaft,2,Robu.in,55423,https://robu.in/product/n20-6v-300-rpm-micro-metal-gear-motor/,149.00,1.73,3.46,Left and right traction drive motors
+4,Drive Wheels,43mm Rubber Wheels for N20 D-Shaft (Pair),1,Robu.in,32984,https://robu.in/product/43mm-rubber-wheel-for-n20-motor/,89.00,1.03,1.03,High-traction rubber drive wheels
+5,Motor Brackets,N20 Aluminum Mounting Bracket with M2 screws (Pack of 2),1,Robu.in,28941,https://robu.in/product/n20-motor-bracket-pack-of-2/,45.00,0.52,0.52,Motor mounting chassis brackets
+6,Caster Wheel,15mm Stainless Steel Ball Caster Bearing with Flange,1,Robu.in,21087,https://robu.in/product/15mm-mini-metal-ball-caster-wheel/,49.00,0.57,0.57,Front omnidirectional balance caster
+7,Pan Servo,TowerPro SG90 9g Micro Servo 180-deg 1.8kg-cm,1,Robu.in,2314,https://robu.in/product/towerpro-sg90-9g-mini-servo-90-degree-rotation/,95.00,1.10,1.10,Pan actuator for sweeping ultrasonic radar
+8,Ultrasonic Sensor,HC-SR04P Ultrasonic Ranging Module 3.0V-5.5V Native 3.3V Logic,1,Robu.in,R223491,https://robu.in/product/hs-sr04p-ultrasonic-module/,145.00,1.69,1.69,Obstacle distance ranging 2cm-400cm
+9,Line Tracker,3-Channel TCRT5000 IR Reflective Line Tracking Module with LM393,1,Robu.in,29805,https://robu.in/product/tcrt5000-line-tracking-sensor-module/,110.00,1.28,1.28,Line navigation and cliff edge detection
+10,Telemetry Sensor,GY-BME280 Atmospheric Sensor (Temp/Humidity/Pressure I2C),1,Robu.in,574312,https://robu.in/product/gy-bme280-5v-board-mount-humidity-sensor/,225.00,2.62,2.62,Environmental sensing and altitude telemetry
+11,Onboard HUD,0.96 inch SSD1306 128x64 I2C OLED Monochrome Display Module,1,Robu.in,18452,https://robu.in/product/0-96-inch-i2c-oled-display-module-blue/,165.00,1.92,1.92,Real-time HUD status and telemetry display
+12,Li-ion Cells,18650 3.7V 2600mAh High-Drain Rechargeable Li-ion Battery Cells,2,Robu.in,712984,https://robu.in/product/orange-icr-18650-2600mah-lithium-ion-battery/,180.00,2.09,4.18,Primary energy pack (2S 7.4V/8.4V)
+13,Battery Holder,2S 18650 Dual-Cell Battery Holder Case with Wire Leads,1,Robu.in,12903,https://robu.in/product/2-x-18650-series-battery-holder-with-cover-switch/,45.00,0.52,0.52,Battery retention fixture
+14,BMS Protection,2S 8.4V 10A Li-ion BMS Battery Protection Board,1,Robu.in,45190,https://robu.in/product/2s-10a-18650-lithium-battery-protection-board/,55.00,0.64,0.64,Overcharge overdischarge short-circuit BMS
+15,USB-C Charger,2S 8.4V 1A Type-C Boost Li-ion Battery Charger Module (TP5100),1,Robu.in,82910,https://robu.in/product/2s-type-c-booster-li-ion-battery-charger-module/,75.00,0.87,0.87,Onboard 2S USB-C balance charger
+16,Buck Regulator,MP1584EN Mini DC-DC 3A Step-Down Buck Converter Module (1.5MHz),1,Robu.in,29765,https://robu.in/product/smartelex-mini-mp1584-dc-dc-3a-adjustable-buck-module/,105.00,1.22,1.22,High efficiency 8.4V to 5.0V step-down
+17,Power Switch,KCD1 Miniature Rocker Switch SPST 3A 250V Chassis Mount,1,Robu.in,19820,https://robu.in/product/kcd1-101-2-pin-rocker-switch/,15.00,0.17,0.17,Master power cut-off switch
+18,Divider Passives,100k 47k 1% Metal Film Resistors + 100nF Ceramic Capacitor,1,LCSC,C17513,https://www.lcsc.com,10.00,0.12,0.12,Battery voltage telemetry divider
+19,Decoupling,470uF 16V Low-ESR Electrolytic + 10uF Ceramic Capacitors,1,LCSC,C453982,https://www.lcsc.com,20.00,0.23,0.23,Motor rail transient filtering
+20,Hardware Chassis,FR4/PETG Dual Deck Chassis Baseplate + M2/M3 Standoffs Screw Kit,1,Robu.in,67210,https://robu.in/product/m3-male-female-brass-standoff-kit/,350.00,4.07,4.07,Mechanical rover frame and standoffs
+21,Wiring & Headers,40-pin 2.54mm Headers + 24AWG Silicone Hookup Wire + JST Connectors,1,Robu.in,14892,https://robu.in/product/40-pin-2-54mm-header-strip-kit/,120.00,1.40,1.40,Wiring harness and socket headers
+22,Custom Carrier PCB,Custom 2-Layer Carrier PCB 100x80mm (5 pcs),5,JLCPCB,Standard,https://jlcpcb.com/quote,172.00,2.00,2.00,Custom motherboard carrier board
