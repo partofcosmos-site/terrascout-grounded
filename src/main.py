@@ -148,14 +148,29 @@ except ImportError:
     I2C = MockI2C  # type: ignore
 
 
-# High-precision millisecond and microsecond timing abstraction
+# High-precision millisecond and microsecond timing abstraction with simulation support
+_simulated_time_ms = None
+
+
 def ticks_ms():
+    global _simulated_time_ms
+    if _simulated_time_ms is not None:
+        return _simulated_time_ms
     if hasattr(time, "ticks_ms"):
         return time.ticks_ms()
     return int(time.time() * 1000)
 
 
+def set_simulated_time_ms(t_ms):
+    """Sets virtual clock for deterministic high-speed simulation testing."""
+    global _simulated_time_ms
+    _simulated_time_ms = int(t_ms) if t_ms is not None else None
+
+
 def ticks_us():
+    global _simulated_time_ms
+    if _simulated_time_ms is not None:
+        return _simulated_time_ms * 1000
     if hasattr(time, "ticks_us"):
         return time.ticks_us()
     return int(time.time() * 1000000)
@@ -230,18 +245,18 @@ class KalmanFilter1D:
         self.bias = 0.0
 
         # Error covariance matrix P (2x2)
-        self.p00 = 0.0
+        self.p00 = 1.0
         self.p01 = 0.0
         self.p10 = 0.0
-        self.p11 = 0.0
+        self.p11 = 1.0
 
     def reset(self, initial_angle=0.0):
         self.angle = float(initial_angle)
         self.bias = 0.0
-        self.p00 = 0.0
+        self.p00 = 1.0
         self.p01 = 0.0
         self.p10 = 0.0
-        self.p11 = 0.0
+        self.p11 = 1.0
 
     def update(self, new_angle, new_rate, dt):
         """
@@ -258,7 +273,7 @@ class KalmanFilter1D:
         self.angle += dt * rate
 
         # 2. Covariance prediction: P = A*P*A^T + Q
-        self.p00 += dt * (dt * self.p11 - self.p01 - self.p10 + self.q_angle)
+        self.p00 += dt * (dt * self.p11 - self.p01 - self.p10) + self.q_angle * dt
         self.p01 -= dt * self.p11
         self.p10 -= dt * self.p11
         self.p11 += self.q_bias * dt
@@ -385,7 +400,7 @@ class BME280KalmanFilter:
         self.q_vel = q_vel
         self.r_measure = r_measure
 
-        self.altitude = 0.0
+        self.altitude = None
         self.climb_rate = 0.0
 
         self.p00 = 1.0
@@ -395,6 +410,10 @@ class BME280KalmanFilter:
         self.last_update = None
 
     def update(self, measured_alt, dt=None):
+        if self.altitude is None:
+            self.altitude = float(measured_alt)
+            return self.altitude, 0.0
+
         now = ticks_ms()
         if dt is None:
             if self.last_update is None:
@@ -750,7 +769,7 @@ class OccupancyGridMap:
 class PIDController:
     """Discrete-time Proportional-Integral-Derivative controller with anti-windup."""
 
-    def __init__(self, kp=1.8, ki=0.25, kd=0.08, out_min=-100.0, out_max=100.0, integral_limit=40.0):
+    def __init__(self, kp=1.8, ki=0.5, kd=0.08, out_min=-100.0, out_max=100.0, integral_limit=100.0):
         self.kp = float(kp)
         self.ki = float(ki)
         self.kd = float(kd)
@@ -899,9 +918,9 @@ class DifferentialDrive:
         elif self.actual_right > self.target_right:
             self.actual_right = max(self.target_right, self.actual_right - step)
 
-        # PID effort calculation
-        out_l = self.pid_left.update(self.actual_left, self.actual_left, dt)
-        out_r = self.pid_right.update(self.actual_right, self.actual_right, dt)
+        # PID effort calculation: compare setpoint against actual speed
+        out_l = self.pid_left.update(self.target_left, self.actual_left, dt)
+        out_r = self.pid_right.update(self.target_right, self.actual_right, dt)
 
         self.left_motor.set_effort(out_l)
         self.right_motor.set_effort(out_r)

@@ -25,3 +25,6 @@ Designator,Val,Package,Mid X,Mid Y,Rotation,Layer
 "D1","LED_GRN","R_0805_2012Metric",22.000,13.000,0,"Top"
 "R6","1k","R_0805_2012Metric",26.000,13.000,0,"Top"
 "D2","LED_BLU","R_0805_2012Metric",26.000,10.500,0,"Top"
+"J9","PINHD-1x4","PinHeader_1x04_P2.54mm_Vertical",55.000,13.000,90,"Top"
+"R7","10k","R_0805_2012Metric",23.000,22.540,0,"Top"
+"R8","10k","R_0805_2012Metric",54.500,53.020,0,"Top"

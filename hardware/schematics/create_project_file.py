@@ -1,0 +1,93 @@
+import json
+import os
+
+pro_data = {
+  "meta": {
+    "filename": "terrascout.kicad_pro",
+    "version": 1
+  },
+  "project": {
+    "files": []
+  },
+  "schematic": {
+    "annotate_start_num": 1,
+    "drawing": {
+      "dashed_lines_dash_length_ratio": 12.0,
+      "dashed_lines_gap_length_ratio": 3.0,
+      "default_line_thickness": 6.0,
+      "default_text_size": 50.0,
+      "field_names": [],
+      "intersheets_ref_own_page": false,
+      "intersheets_ref_prefix": "",
+      "intersheets_ref_short": false,
+      "intersheets_ref_show": true,
+      "intersheets_ref_suffix": "",
+      "junction_size_choice": 3,
+      "pin_symbol_size": 0.0,
+      "text_offset_ratio": 0.08
+    },
+    "erc": {
+      "erc_exclusions": [],
+      "meta": {
+        "version": 0
+      },
+      "rule_severities": {
+        "bus_label_syntax": "error",
+        "bus_to_bus_conflict": "error",
+        "bus_to_net_conflict": "error",
+        "conflicting_netclasses": "error",
+        "different_unit_footprint": "error",
+        "different_unit_netclass": "error",
+        "driver_missing": "error",
+        "duplicate_reference": "error",
+        "duplicate_sheet_names": "error",
+        "endpoint_off_grid": "warning",
+        "extra_units": "error",
+        "global_label_dangling": "warning",
+        "hier_label_mismatch": "error",
+        "label_dangling": "error",
+        "lib_symbol_issues": "warning",
+        "missing_bidi_pin": "warning",
+        "missing_input_pin": "warning",
+        "missing_power_pin": "error",
+        "missing_unit": "warning",
+        "multiple_net_names": "warning",
+        "net_not_bus_member": "warning",
+        "no_connect_connected": "error",
+        "no_connect_dangling": "warning",
+        "pin_not_connected": "error",
+        "pin_not_driven": "error",
+        "pin_to_pin": "error",
+        "power_pin_not_driven": "error",
+        "similar_labels": "warning",
+        "simulation_model_issue": "ignore",
+        "unannotated": "error",
+        "unit_value_mismatch": "error",
+        "unresolved_variable": "error",
+        "wire_dangling": "error"
+      }
+    },
+    "net_format_name": "KiCad",
+    "ngspice": {
+      "meta": {
+        "version": 0
+      }
+    },
+    "page": {
+      "height": 210.0,
+      "width": 297.0
+    }
+  },
+  "sheets": [
+    [
+      "00000000-0000-0000-0000-000000000000",
+      ""
+    ]
+  ]
+}
+
+sch_dir = 'C:/Users/white/terrascout-grounded/hardware/schematics'
+with open(os.path.join(sch_dir, 'terrascout.kicad_pro'), 'w', encoding='utf-8') as f:
+    json.dump(pro_data, f, indent=2)
+
+print("Created terrascout.kicad_pro")

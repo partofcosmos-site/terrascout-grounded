@@ -481,6 +481,25 @@ class TerraScoutPCB:
         self._add_smd_passive("D2", "LED_BLU", "0805", 26.0, 10.5, "NET_LED_STAT", "GND", "C84267")
         self.silk_texts.append(SilkText("STAT", 26.0, 8.5, size=0.9))
 
+        # J9: UART Telemetry / Program Header (1x4 Pin Header 2.54mm pitch)
+        c_j9 = Component("J9", "PINHD-1x4", "PinHeader_1x04_P2.54mm_Vertical", 55.0, 13.0, 90,
+                         "UART0 Serial Telemetry & Flash Port", "C22551")
+        self.components.append(c_j9)
+        uart_nets = [("3V3", "1"), ("TX", "2"), ("RX", "3"), ("GND", "4")]
+        for idx, (net, pnum) in enumerate(uart_nets):
+            py = 9.19 + idx * 2.54
+            shape = "rect" if pnum == "1" else "circle"
+            p = Pad(net, 55.0, py, shape, 1.6, 1.6, 0.9, "All", pnum, "J9")
+            self.pads.append(p)
+            c_j9.pads.append(p)
+        self._add_box_silk(53.0, 7.5, 57.0, 18.5)
+        self.silk_texts.append(SilkText("UART", 55.0, 5.5, size=1.0))
+
+        # R7: 10k 0805 EN (Reset) Pullup to 3.3V
+        self._add_smd_passive("R7", "10k", "0805", 23.0, 22.54, "3V3", "EN", "C25744")
+        # R8: 10k 0805 GPIO0 (Boot) Pullup to 3.3V
+        self._add_smd_passive("R8", "10k", "0805", 54.5, 53.02, "3V3", "GPIO0", "C25744")
+
     def _add_smd_passive(self, ref, val, pkg, cx, cy, net1, net2, lcsc=""):
         c = Component(ref, val, f"R_{pkg}_2012Metric", cx, cy, 0, f"{ref} {val}", lcsc)
         self.components.append(c)
@@ -622,6 +641,25 @@ class TerraScoutPCB:
 
         # VINT DRV8833 bypass cap C4: Pin 11 (76.7, 40.37) -> C4 (79.5 - 0.95, 42.0)
         self._add_wire("VINT", [(76.7, 40.37), (78.55, 40.37), (78.55, 42.0)], w_sig)
+
+        # TX: ESP32 Pin 24 (51.4, 22.54) -> J9 Pin 2 (55.0, 11.73)
+        self._add_wire("TX", [(51.4, 22.54), (53.0, 22.54), (53.0, 11.73), (55.0, 11.73)], w_sig)
+
+        # RX: ESP32 Pin 25 (51.4, 25.08) -> J9 Pin 3 (55.0, 14.27)
+        self._add_wire("RX", [(51.4, 25.08), (53.5, 25.08), (53.5, 14.27), (55.0, 14.27)], w_sig)
+
+        # EN: ESP32 Pin 2 (26.0, 22.54) -> R7 Pin 2 (23.0 + 0.95, 22.54)
+        self._add_wire("EN", [(26.0, 22.54), (23.95, 22.54)], w_sig)
+        # R7 Pin 1 (3V3) to 3.3V
+        self._add_wire("3V3", [(23.0 - 0.95, 22.54), (21.5, 22.54), (21.5, 20.0), (26.0, 20.0)], w_sig)
+
+        # GPIO0: ESP32 Pin 36 (51.4, 53.02) -> R8 Pin 2 (54.5 - 0.95, 53.02)
+        self._add_wire("GPIO0", [(51.4, 53.02), (53.55, 53.02)], w_sig)
+        # R8 Pin 1 (3V3) to 3.3V
+        self._add_wire("3V3", [(54.5 + 0.95, 53.02), (57.0, 53.02), (57.0, 52.19), (69.0, 52.19)], w_sig)
+
+        # J9 Pin 1 (3V3) to 3.3V
+        self._add_wire("3V3", [(55.0, 9.19), (57.0, 9.19), (57.0, 8.0), (78.75, 8.0)], w_sig)
 
     def _add_wire(self, net, pts, width, layer="F.Cu"):
         for i in range(len(pts) - 1):
@@ -1740,6 +1778,84 @@ class VisualRenderer:
         out_3d_top = output_dir / "render_3d_top_isometric.png"
         img_3d.save(out_3d_top, "PNG")
         print(f"[+] Rendered 3D Isometric View: {out_3d_top}")
+
+        # ----------------------------------------------------------------------
+        # Render 3D Bottom Isometric View (render_3d_bottom_isometric.png)
+        # ----------------------------------------------------------------------
+        img_3d_bot = Image.new("RGBA", (canvas_w, canvas_h), (245, 247, 250, 255))
+        draw_b = ImageDraw.Draw(img_3d_bot)
+
+        def project_bot(x, y, z):
+            bx = (x - 50.0) * scale_3d
+            by = ((80.0 - y) - 40.0) * scale_3d
+            bz = z * scale_3d * 2.5
+            sx = origin_x + (bx - by) * cos_a
+            sy = origin_y + (bx + by) * sin_a - bz
+            return int(round(sx)), int(round(sy))
+
+        # Substrate Shadow
+        sh_poly_b = [project_bot(0, 0, -2), project_bot(100, 0, -2), project_bot(100, 80, -2), project_bot(0, 80, -2)]
+        draw_b.polygon(sh_poly_b, fill=(210, 218, 228, 160))
+
+        # FR-4 Core Substrate 1.6mm Edge
+        p_bf1 = project_bot(0, 0, thick)
+        p_bf2 = project_bot(100, 0, thick)
+        p_bf3 = project_bot(100, 0, 0)
+        p_bf4 = project_bot(0, 0, 0)
+        draw_b.polygon([p_bf1, p_bf2, p_bf3, p_bf4], fill=c_core)
+
+        p_br1 = project_bot(100, 0, thick)
+        p_br2 = project_bot(100, 80, thick)
+        p_br3 = project_bot(100, 80, 0)
+        p_br4 = project_bot(100, 0, 0)
+        draw_b.polygon([p_br1, p_br2, p_br3, p_br4], fill=(25, 42, 30, 255))
+
+        # Bottom PCB Surface (Matte Green Solder Mask)
+        pcb_bot_surf = [project_bot(0, 0, thick), project_bot(100, 0, thick), project_bot(100, 80, thick), project_bot(0, 80, thick)]
+        draw_b.polygon(pcb_bot_surf, fill=(24, 94, 32, 255), outline=(40, 140, 50, 255))
+
+        # Bottom M3 Standoffs
+        for mh in MOUNT_HOLES:
+            mx, my = mh["x"], mh["y"]
+            p_base = project_bot(mx, my, thick)
+            p_top = project_bot(mx, my, thick + 8.0)
+            r = 18
+            draw_b.line([p_base, p_top], fill=(205, 165, 45, 255), width=r)
+            draw_b.ellipse([p_top[0]-r//2, p_top[1]-r//4, p_top[0]+r//2, p_top[1]+r//4], fill=(230, 195, 75, 255))
+            draw_b.ellipse([p_top[0]-4, p_top[1]-2, p_top[0]+4, p_top[1]+2], fill=(50, 40, 10, 255))
+
+        # Bottom Copper Tracks
+        for t in pcb.tracks:
+            if t.layer == "B.Cu":
+                p1 = project_bot(t.x1, t.y1, thick + 0.05)
+                p2 = project_bot(t.x2, t.y2, thick + 0.05)
+                w = max(2, int(round(t.width * scale_3d * 0.4)))
+                draw_b.line([p1, p2], fill=(46, 125, 50, 255), width=w)
+
+        # Bottom Through-Hole Pins protruding 1.5mm & Gold Pads
+        for p in pcb.pads:
+            if p.layer in ("All", "B.Cu"):
+                p_pad = project_bot(p.x, p.y, thick + 0.08)
+                pw = int(p.w * scale_3d * 0.35)
+                draw_b.ellipse([p_pad[0]-pw, p_pad[1]-pw//2, p_pad[0]+pw, p_pad[1]+pw//2], fill=(230, 195, 92, 255))
+                if p.drill > 0:
+                    p_pin_tip = project_bot(p.x, p.y, thick + 1.8)
+                    draw_b.line([p_pad, p_pin_tip], fill=(210, 215, 225, 255), width=3)
+                    draw_b.ellipse([p_pin_tip[0]-2, p_pin_tip[1]-1, p_pin_tip[0]+2, p_pin_tip[1]+1], fill=(160, 165, 175, 255))
+
+        # Bottom Ground Stitching Vias
+        for v in pcb.vias:
+            p_v = project_bot(v.x, v.y, thick + 0.06)
+            draw_b.ellipse([p_v[0]-3, p_v[1]-2, p_v[0]+3, p_v[1]+2], fill=(212, 175, 55, 255))
+            draw_b.ellipse([p_v[0]-1, p_v[1]-1, p_v[0]+1, p_v[1]+1], fill=(15, 23, 42, 255))
+
+        # Title Banner on Bottom 3D Render
+        draw_b.text((60, 50), "TERRASCOUT ROVER - 3D BOTTOM HARDWARE PREVIEW", fill=(30, 41, 59, 255))
+        draw_b.text((60, 80), "Bottom Ground Plane Flood | Trimmed Component Leads & Thermal Reliefs", fill=(71, 85, 105, 255))
+
+        out_3d_bot = output_dir / "render_3d_bottom_isometric.png"
+        img_3d_bot.save(out_3d_bot, "PNG")
+        print(f"[+] Rendered 3D Bottom Isometric View: {out_3d_bot}")
 
 # ==============================================================================
 # 10. ZIP ARCHIVER FOR FABRICATION (JLCPCB FORMAT)

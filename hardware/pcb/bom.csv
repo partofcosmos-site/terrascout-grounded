@@ -25,3 +25,6 @@ Designator,Quantity,Value,Footprint,Description,LCSC Part #
 "D1","1","LED_GRN","R_0805_2012Metric","D1 LED_GRN","C84256"
 "R6","1","1k","R_0805_2012Metric","R6 1k","C17513"
 "D2","1","LED_BLU","R_0805_2012Metric","D2 LED_BLU","C84267"
+"J9","1","PINHD-1x4","PinHeader_1x04_P2.54mm_Vertical","UART0 Serial Telemetry & Flash Port","C22551"
+"R7","1","10k","R_0805_2012Metric","R7 10k","C25744"
+"R8","1","10k","R_0805_2012Metric","R8 10k","C25744"
