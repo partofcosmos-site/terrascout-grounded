@@ -1,12 +1,12 @@
 {
-  "timestamp": "2026-10-03T12:03:47Z",
+  "timestamp": "2026-10-03T15:33:57Z",
   "project": "TerraScout Grounded Telemetry Rover",
   "stls": [
     {
       "file": "bottom_deck.stl",
-      "triangles": 3092,
-      "unique_vertices": 1516,
-      "unique_edges": 4638,
+      "triangles": 3492,
+      "unique_vertices": 1708,
+      "unique_edges": 5238,
       "bounding_box": {
         "min": [
           -68.0,
@@ -27,14 +27,14 @@
       "is_watertight": true,
       "boundary_edges": 0,
       "non_manifold_edges": 0,
-      "size_kb": 151.1,
-      "compile_time_s": 16.18
+      "size_kb": 170.6,
+      "compile_time_s": 10.22
     },
     {
       "file": "top_deck.stl",
-      "triangles": 3348,
-      "unique_vertices": 1664,
-      "unique_edges": 5022,
+      "triangles": 3808,
+      "unique_vertices": 1852,
+      "unique_edges": 5712,
       "bounding_box": {
         "min": [
           -68.0,
@@ -55,8 +55,8 @@
       "is_watertight": true,
       "boundary_edges": 0,
       "non_manifold_edges": 0,
-      "size_kb": 163.6,
-      "compile_time_s": 8.88
+      "size_kb": 186.0,
+      "compile_time_s": 7.93
     },
     {
       "file": "motor_bracket.stl",
@@ -84,7 +84,7 @@
       "boundary_edges": 0,
       "non_manifold_edges": 0,
       "size_kb": 38.6,
-      "compile_time_s": 1.18
+      "compile_time_s": 0.79
     },
     {
       "file": "ultrasonic_bracket.stl",
@@ -112,7 +112,7 @@
       "boundary_edges": 0,
       "non_manifold_edges": 0,
       "size_kb": 60.6,
-      "compile_time_s": 2.77
+      "compile_time_s": 1.44
     },
     {
       "file": "caster_mount.stl",
@@ -140,13 +140,13 @@
       "boundary_edges": 0,
       "non_manifold_edges": 0,
       "size_kb": 32.5,
-      "compile_time_s": 1.44
+      "compile_time_s": 0.78
     },
     {
       "file": "print_bed_plate.stl",
-      "triangles": 9944,
-      "unique_vertices": 4918,
-      "unique_edges": 14916,
+      "triangles": 10804,
+      "unique_vertices": 5298,
+      "unique_edges": 16206,
       "bounding_box": {
         "min": [
           -98.0,
@@ -167,44 +167,44 @@
       "is_watertight": true,
       "boundary_edges": 0,
       "non_manifold_edges": 0,
-      "size_kb": 485.6,
-      "compile_time_s": 40.94
+      "size_kb": 527.6,
+      "compile_time_s": 28.63
     }
   ],
   "renders": [
     {
       "name": "assembly.png",
       "resolution": "1920x1080",
-      "size_kb": 51.2,
-      "render_time_s": 1.15,
+      "size_kb": 55.2,
+      "render_time_s": 0.44,
       "description": "Rover Dual-Deck Full Hardware Assembly (Isometric)"
     },
     {
       "name": "exploded.png",
       "resolution": "1920x1080",
-      "size_kb": 52.5,
-      "render_time_s": 1.39,
+      "size_kb": 63.0,
+      "render_time_s": 0.42,
       "description": "Exploded Multi-Tier Architecture View (Battery Sled + Decks)"
     },
     {
       "name": "bottom_deck_render.png",
       "resolution": "1920x1080",
-      "size_kb": 35.5,
-      "render_time_s": 0.93,
+      "size_kb": 37.2,
+      "render_time_s": 0.34,
       "description": "Bottom Deck Plate Interior Feature & Saddle Detail"
     },
     {
       "name": "top_deck_render.png",
       "resolution": "1920x1080",
-      "size_kb": 26.2,
-      "render_time_s": 0.71,
+      "size_kb": 35.5,
+      "render_time_s": 0.34,
       "description": "Top Deck Electronics Plate & Prow Servo Mount Detail"
     },
     {
       "name": "turret_render.png",
       "resolution": "1920x1080",
       "size_kb": 43.8,
-      "render_time_s": 0.77,
+      "render_time_s": 0.33,
       "description": "Ultrasonic Dual-Barrel Sensor Turret Bracket Detail"
     }
   ],
