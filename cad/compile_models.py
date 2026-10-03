@@ -123,6 +123,7 @@ def parse_binary_stl(filepath):
         
         edges = {}
         vertices = set()
+        total_vol_mm3 = 0.0
         
         for _ in range(num_triangles):
             f.read(12) # Normal
@@ -143,6 +144,12 @@ def parse_binary_stl(filepath):
             for edge in [tuple(sorted((v1, v2))), tuple(sorted((v2, v3))), tuple(sorted((v3, v1)))]:
                 edges[edge] = edges.get(edge, 0) + 1
 
+            total_vol_mm3 += (
+                verts[0] * (verts[4] * verts[8] - verts[5] * verts[7]) +
+                verts[1] * (verts[5] * verts[6] - verts[3] * verts[8]) +
+                verts[2] * (verts[3] * verts[7] - verts[4] * verts[6])
+            ) / 6.0
+
     boundary_edges = sum(1 for count in edges.values() if count == 1)
     non_manifold_edges = sum(1 for count in edges.values() if count > 2)
     is_watertight = (boundary_edges == 0 and non_manifold_edges == 0)
@@ -150,6 +157,7 @@ def parse_binary_stl(filepath):
     dim_x = round(max_x - min_x, 2)
     dim_y = round(max_y - min_y, 2)
     dim_z = round(max_z - min_z, 2)
+    volume_cm3 = round(abs(total_vol_mm3) / 1000.0, 3)
     
     return {
         "file": filepath.name,
@@ -161,6 +169,7 @@ def parse_binary_stl(filepath):
             "max": [max_x, max_y, max_z],
             "dimensions_mm": [dim_x, dim_y, dim_z]
         },
+        "volume_cm3": volume_cm3,
         "is_watertight": is_watertight,
         "boundary_edges": boundary_edges,
         "non_manifold_edges": non_manifold_edges
@@ -319,5 +328,44 @@ def compile_cad_suite():
     print(f" Audit report saved to: {report_path}")
     print("=" * 75)
 
+def audit_meshes():
+    print("=" * 75)
+    print(" TERRASCOUT GROUNDED ROVER - BATCH MESH TOPOLOGY AUDIT")
+    print("=" * 75)
+    stl_results = []
+    for part in STL_PARTS:
+        out_file = CAD_DIR / part["name"]
+        if not out_file.exists():
+            print(f"[-] Missing: {part['name']}")
+            continue
+        meta = parse_binary_stl(out_file)
+        size_kb = round(out_file.stat().st_size / 1024.0, 1)
+        meta["size_kb"] = size_kb
+        stl_results.append(meta)
+        print(f"[*] {part['name']}:")
+        print(f"    - Faces (Triangles): {meta['triangles']:,}")
+        print(f"    - Unique Vertices:   {meta['unique_vertices']:,}")
+        print(f"    - Bounding Box (mm): {meta['bounding_box']['dimensions_mm']}")
+        print(f"    - Volume (cm^3):     {meta['volume_cm3']:.3f} cm^3")
+        print(f"    - Watertight:        {meta['is_watertight']}")
+        print(f"    - Boundary Edges:    {meta['boundary_edges']}")
+        print(f"    - Non-Manifold Edges:{meta['non_manifold_edges']}")
+    
+    # Update cad_audit_report.json if exists
+    report_path = CAD_DIR / "cad_audit_report.json"
+    if report_path.exists():
+        with open(report_path, "r") as f:
+            report = json.load(f)
+        report["stls"] = stl_results
+        report["timestamp"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+        with open(report_path, "w") as f:
+            json.dump(report, f, indent=2)
+    return stl_results
+
 if __name__ == "__main__":
-    compile_cad_suite()
+    import sys
+    if "--audit" in sys.argv:
+        audit_meshes()
+    else:
+        compile_cad_suite()
+
