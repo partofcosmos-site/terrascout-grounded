@@ -297,15 +297,15 @@
 #text(9.5pt, weight: "bold", fill: rgb("#0369a1"))[9. IEC 60529 IP54 Robotics Environmental Sealing & Labyrinth Audit]
 
 #table(
-  columns: (1.6fr, 1.1fr, 2.3fr, 1.2fr),
-  inset: 3.5pt,
+  columns: (1.3fr, 1.4fr, 2.3fr, 1.0fr),
+  inset: 2.2pt,
   stroke: 0.5pt + rgb("#cbd5e1"),
   fill: (col, row) => if row == 0 { rgb("#f1f5f9") } else { none },
   align: (left, center, left, center),
-  [#text(7.5pt, weight: "bold")[Sealing Subsystem]],
-  [#text(7.5pt, weight: "bold")[Nominal Geometry]],
-  [#text(7.5pt, weight: "bold")[Fluid / Particulate Mitigation Physics]],
-  [#text(7.5pt, weight: "bold")[Ingress Status]],
+  [#text(7pt, weight: "bold")[Sealing Subsystem]],
+  [#text(7pt, weight: "bold")[Nominal Geometry]],
+  [#text(7pt, weight: "bold")[Fluid / Particulate Mitigation Physics]],
+  [#text(7pt, weight: "bold")[Ingress Status]],
   [Upper Deck Splash Skirt], [$2.5$ mm drop, $3.0$ mm overhang], [$45^degree$ knife-edge undercut breaks water film surface tension], [PASS (Splash Shield)],
   [Inter-Deck Labyrinth Lip], [$1.80$ mm vertical tongue], [Double $90^degree$ upward pressure step prevents crawl into electronics], [PASS (Labyrinth Baffle)],
   [N20 Axle Dust Labyrinth], [$0.40$ mm radial, $1.50$ mm lap], [Concentric rotating collar labyrinth prevents grit penetration], [PASS (Grit Barrier)],
@@ -316,13 +316,13 @@
   [Turret Servo Mast Ring], [Dia $12.0$ mm collar ring], [$2.00$ mm vertical barrier ring deflects top-deck drainage runoff], [PASS (Mast Deflection)]
 )
 
-#v(2pt)
+#v(1pt)
 
 // --- Section 10: IP54 Cross-Sectional Ingress Protection Baffle Diagram ---
-#text(9.5pt, weight: "bold", fill: rgb("#0369a1"))[10. IP54 Ingress Protection Cross-Sectional Baffle Engineering Proof]
+#text(9pt, weight: "bold", fill: rgb("#0369a1"))[10. IP54 Ingress Protection Cross-Sectional Baffle Engineering Proof]
 
 #align(center)[
-  #image("renders/ip54_ingress_protection_analysis.png", width: 94%) \
-  #text(7pt, weight: "bold")[Figure 6: High-Resolution IP54 Cross-Sectional Splash Skirt, Centrifugal Axle Labyrinth & Sonar Cowl Diagram ($1920 times 1080$)] \
-  #text(6.5pt, fill: rgb("#64748b"))[Panel 1: Splash Skirt • Panel 2: N20 Concentric Labyrinth • Panel 3: Centrifugal Ejection • Panel 4: Sonar Cowl • Panel 5: Tray Drain • Panel 6: Audit Matrix]
+  #image("renders/ip54_ingress_protection_analysis.png", width: 72%) \
+  #text(6.5pt, weight: "bold")[Figure 6: High-Resolution IP54 Cross-Sectional Splash Skirt, Centrifugal Axle Labyrinth & Sonar Cowl Diagram ($1920 times 1080$)] \
+  #text(6pt, fill: rgb("#64748b"))[Panel 1: Splash Skirt • Panel 2: N20 Concentric Labyrinth • Panel 3: Centrifugal Ejection • Panel 4: Sonar Cowl • Panel 5: Tray Drain • Panel 6: Audit Matrix]
 ]
