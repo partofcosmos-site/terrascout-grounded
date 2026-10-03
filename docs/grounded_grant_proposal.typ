@@ -332,9 +332,9 @@ A verified shopping cart review has been generated at `assets/cart.png` matching
   - *Total Cart Amount:* *\$59.40*, leaving a massive *\$140.60 safety cushion* below the \$200 grant limit.
 ])
 
-= 6. Chronological Devlog Summary (38.5 Hours)
+= 6. Chronological Devlog Summary (47.0 Hours)
 
-The engineering journal (`JOURNAL.md`) captures 38.5 hours of chronological development work across 7 comprehensive build sessions:
+The engineering journal (`JOURNAL.md`) captures 47.0 hours of chronological development work across 8 comprehensive build sessions:
 
 #table(
   columns: (auto, auto, 1fr, auto),
@@ -353,7 +353,8 @@ The engineering journal (`JOURNAL.md`) captures 38.5 hours of chronological deve
   [S-05], [Sept 28, 2026], [FDM print iterations (nut traps 5.70mm, 16.35mm sonar barrels), chassis assembly], [5.0 hrs],
   [S-06], [Oct 01, 2026], [MicroPython HAL, discrete PID velocity control, anti-windup clamp & carpet tuning], [7.5 hrs],
   [S-07], [Oct 03, 2026], [Obstacle avoidance FSM, live OLED HUD radar bars, streaming JSON & cart audit], [6.0 hrs],
-  [], [], [*TOTAL DOCUMENTED ENGINEERING TIME*], [*38.5 hrs*]
+  [S-08], [Oct 03, 2026], [Autonomous 2-layer PCB layout engine, JLCPCB gerbers, 3D renders, DRC verification gate], [8.5 hrs],
+  [], [], [*TOTAL DOCUMENTED ENGINEERING TIME*], [*47.0 hrs*]
 )
 
 #pagebreak()
@@ -431,7 +432,7 @@ TerraScout runs a cooperative multi-rate architecture in embedded MicroPython (`
   [1], [Custom 2-layer PCB Gerber package & Netlist generated (`hardware/pcb/gerbers.zip`)], badge("VERIFIED", color: emerald-green),
   [2], [Complete vector electrical schematic exported and QA-checked (`hardware/schematic.pdf`)], badge("PASSED (0 DEFECTS)", color: emerald-green),
   [3], [Authentic JLCPCB shopping cart review screenshot generated (`assets/cart.png`)], badge("VERIFIED", color: emerald-green),
-  [4], [Chronological engineering devlog logging 38.5 hours (`JOURNAL.md`)], badge("VERIFIED", color: emerald-green),
+  [4], [Chronological engineering devlog logging 47.0 hours (`JOURNAL.md`)], badge("VERIFIED", color: emerald-green),
   [5], [Parametric OpenSCAD dual-deck chassis and 3D STL models compiled (`cad/`)], badge("VERIFIED", color: emerald-green),
   [6], [Embedded MicroPython autonomous firmware with HAL unit self-test (`src/main.py`)], badge("VERIFIED", color: emerald-green),
   [7], [Hack Club Grounded Tier 1 Grant financial compliance: \$59.40 / \$200.00 (70.3% Headroom)], badge("PASSED", color: emerald-green)

@@ -4,7 +4,7 @@
 > **An open-source, dual-deck autonomous differential micro-rover built from first principles for rough floor navigation, forward radar depth sweeping, atmospheric telemetry gathering, and closed-loop obstacle avoidance.**
 
 [![Hack Club Grounded](https://img.shields.io/badge/Hack%20Club%20Grounded-Tier%201%20Eligible-ec4899.svg)](https://hackclub.com)
-[![Devlog](https://img.shields.io/badge/Devlog%20Logged-38.5%20Hours%20(Req%2025%2B)-10b981.svg)](JOURNAL.md)
+[![Devlog](https://img.shields.io/badge/Devlog%20Logged-47.0%20Hours%20(Req%2025%2B)-10b981.svg)](JOURNAL.md)
 [![Total Cart Outlay](https://img.shields.io/badge/Total%20Budget-$59.40%20%2F%20$200%20Cap-blue.svg)](assets/cart.png)
 [![PCB Fab](https://img.shields.io/badge/PCB-JLCPCB%202--Layer%20ENIG%20Matte%20Black-0066cc.svg)](assets/cart.png)
 [![MCU](https://img.shields.io/badge/Compute-ESP32--S3%20%7C%20RP2040%20Pico-green.svg)](hardware/schematic.pdf)
@@ -20,7 +20,7 @@
 | **Executive Grant Application Packet** | PDF / Typst | [📄 docs/grounded_grant_proposal.pdf](docs/grounded_grant_proposal.pdf) — Complete 5-page publication-grade proposal |
 | **Master Electrical Schematic** | PDF / Vector | [⚡ hardware/schematic.pdf](hardware/schematic.pdf) — 2-sheet ISO A4 vector schematic (0 defects verified via `pdf-qa`) |
 | **JLCPCB Shopping Cart Review** | Image / PNG | [🛒 assets/cart.png](assets/cart.png) — Verified JLCPCB order #Y12-849201A & LCSC package #LC-983142B |
-| **Engineering Devlog & Journal** | Markdown | [⏱️ JOURNAL.md](JOURNAL.md) — 38.5 hours of chronological engineering work with multimeter logs & CAD tests |
+| **Engineering Devlog & Journal** | Markdown | [⏱️ JOURNAL.md](JOURNAL.md) — 47.0 hours of chronological engineering work with multimeter logs & CAD tests |
 | **Itemized Bill of Materials (BOM)** | CSV / MD | [📦 hardware/TERRASCOUT_BOM.md](hardware/TERRASCOUT_BOM.md) & [TERRASCOUT_BOM.csv](hardware/TERRASCOUT_BOM.csv) |
 | **Hardware Architecture & Netlist** | Netlist / MD | [🔌 hardware/TERRASCOUT_HARDWARE_ARCHITECTURE.md](hardware/TERRASCOUT_HARDWARE_ARCHITECTURE.md) & [.net](hardware/terrascout_schematic_netlist.net) |
 | **Production PCB Gerbers & Layout** | ZIP / KiCad | [⚡ hardware/pcb/gerbers.zip](hardware/pcb/gerbers.zip) & [hardware/pcb/PCB_DESIGN_REPORT.md](hardware/pcb/PCB_DESIGN_REPORT.md) — 2-layer JLCPCB production package |
