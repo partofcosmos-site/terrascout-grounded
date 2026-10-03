@@ -15,7 +15,7 @@
       grid(
         columns: (1fr, auto),
         align(left)[#text(7.5pt, fill: rgb("#475569"), weight: "bold")[TERRASCOUT GROUNDED ROVER CHASSIS — ENGINEERING SPECIFICATION & BLUEPRINT]],
-        align(right)[#text(7.5pt, fill: rgb("#64748b"))[DWG-TS-CAD-02 | REV 3.2]]
+        align(right)[#text(7.5pt, fill: rgb("#64748b"))[DWG-TS-CAD-02 | REV 3.3]]
       )
       v(-3pt)
       line(length: 100%, stroke: 0.5pt + rgb("#cbd5e1"))
@@ -289,4 +289,40 @@
   #image("renders/drop_impact_stress_analysis.png", width: 94%) \
   #text(7pt, weight: "bold")[Figure 5: High-Resolution Drop-Impact Kinematics, Prow Energy Absorption & Standoff Stress Map ($1920 times 1080$)] \
   #text(6.5pt, fill: rgb("#64748b"))[Panel 1: Deceleration Pulse • Panel 2: Prow Strain Energy • Panel 3: Prow Stress Field • Panel 4: Standoff Bending • Panel 5: 18650 Restraint • Panel 6: Audit Matrix]
+]
+
+#pagebreak()
+
+// --- Page 4: IP54 Dust & Splash Sealing Mechanics ---
+#text(9.5pt, weight: "bold", fill: rgb("#0369a1"))[9. IEC 60529 IP54 Robotics Environmental Sealing & Labyrinth Audit]
+
+#table(
+  columns: (1.6fr, 1.1fr, 2.3fr, 1.2fr),
+  inset: 3.5pt,
+  stroke: 0.5pt + rgb("#cbd5e1"),
+  fill: (col, row) => if row == 0 { rgb("#f1f5f9") } else { none },
+  align: (left, center, left, center),
+  [#text(7.5pt, weight: "bold")[Sealing Subsystem]],
+  [#text(7.5pt, weight: "bold")[Nominal Geometry]],
+  [#text(7.5pt, weight: "bold")[Fluid / Particulate Mitigation Physics]],
+  [#text(7.5pt, weight: "bold")[Ingress Status]],
+  [Upper Deck Splash Skirt], [$2.5$ mm drop, $3.0$ mm overhang], [$45^degree$ knife-edge undercut breaks water film surface tension], [PASS (Splash Shield)],
+  [Inter-Deck Labyrinth Lip], [$1.80$ mm vertical tongue], [Double $90^degree$ upward pressure step prevents crawl into electronics], [PASS (Labyrinth Baffle)],
+  [N20 Axle Dust Labyrinth], [$0.40$ mm radial, $1.50$ mm lap], [Concentric rotating collar labyrinth prevents grit penetration], [PASS (Grit Barrier)],
+  [Centrifugal Dust Ejection], [Collar $r = 4.70$ mm at hub], [$a_c = 5.2 g$ at $300$ RPM flings quartz sand and soil particles outboard], [PASS (Self-Cleaning)],
+  [Ball Caster Drainage Cup], [Dia $12.50$ mm cup + weep port], [Downward gravity drainage port clears slurry from caster pocket], [PASS (Slurry Egress)],
+  [HC-SR04 Sonar Cowl], [$15^degree$ down-slope hood lip], [$2.50$ mm recessed transducer face blocks direct frontal rain jet], [PASS (Cowl Protected)],
+  [18650 Battery Bay Weep Drain], [Offset suspended baffle shelf], [Gravity runoff allows condensation egress while blocking ground splash], [PASS (Dry Venting)],
+  [Turret Servo Mast Ring], [Dia $12.0$ mm collar ring], [$2.00$ mm vertical barrier ring deflects top-deck drainage runoff], [PASS (Mast Deflection)]
+)
+
+#v(2pt)
+
+// --- Section 10: IP54 Cross-Sectional Ingress Protection Baffle Diagram ---
+#text(9.5pt, weight: "bold", fill: rgb("#0369a1"))[10. IP54 Ingress Protection Cross-Sectional Baffle Engineering Proof]
+
+#align(center)[
+  #image("renders/ip54_ingress_protection_analysis.png", width: 94%) \
+  #text(7pt, weight: "bold")[Figure 6: High-Resolution IP54 Cross-Sectional Splash Skirt, Centrifugal Axle Labyrinth & Sonar Cowl Diagram ($1920 times 1080$)] \
+  #text(6.5pt, fill: rgb("#64748b"))[Panel 1: Splash Skirt • Panel 2: N20 Concentric Labyrinth • Panel 3: Centrifugal Ejection • Panel 4: Sonar Cowl • Panel 5: Tray Drain • Panel 6: Audit Matrix]
 ]
