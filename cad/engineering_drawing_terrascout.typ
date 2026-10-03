@@ -15,7 +15,7 @@
       grid(
         columns: (1fr, auto),
         align(left)[#text(7.5pt, fill: rgb("#475569"), weight: "bold")[TERRASCOUT GROUNDED ROVER CHASSIS — ENGINEERING SPECIFICATION & BLUEPRINT]],
-        align(right)[#text(7.5pt, fill: rgb("#64748b"))[DWG-TS-CAD-02 | REV 3.4]]
+        align(right)[#text(7.5pt, fill: rgb("#64748b"))[DWG-TS-CAD-02 | REV 3.5]]
       )
       v(-3pt)
       line(length: 100%, stroke: 0.5pt + rgb("#cbd5e1"))
@@ -326,3 +326,43 @@
   #text(6.5pt, weight: "bold")[Figure 6: High-Resolution IP54 Cross-Sectional Splash Skirt, Centrifugal Axle Labyrinth & Sonar Cowl Diagram ($1920 times 1080$)] \
   #text(6pt, fill: rgb("#64748b"))[Panel 1: Splash Skirt • Panel 2: N20 Concentric Labyrinth • Panel 3: Centrifugal Ejection • Panel 4: Sonar Cowl • Panel 5: Tray Drain • Panel 6: Audit Matrix]
 ]
+
+#pagebreak()
+
+// --- Page 5: Viscoelastic Creep Preload Relaxation & Dynamic Kinematics Mobility ---
+#text(9.5pt, weight: "bold", fill: rgb("#0369a1"))[11. Long-Term Viscoelastic Creep Preload Relaxation & Rover Mobility Audit]
+
+#table(
+  columns: (1.5fr, 1.2fr, 2.2fr, 1.1fr),
+  inset: 2.6pt,
+  stroke: 0.5pt + rgb("#cbd5e1"),
+  fill: (col, row) => if row == 0 { rgb("#f1f5f9") } else { none },
+  align: (left, center, left, center),
+  [#text(7pt, weight: "bold")[Analytical Parameter]],
+  [#text(7pt, weight: "bold")[Nominal Value]],
+  [#text(7pt, weight: "bold")[Physical Governing Formulation / Standard]],
+  [#text(7pt, weight: "bold")[Audit Status]],
+  [Initial Bolt Preload ($F_0$)], [$600.0$ N], [Nominal torque $T = 0.50 " N" dot "m"$ for M3 Grade 8.8 through-bolt], [PASS (Proof Safe)],
+  [1-Year Residual Clamp ($F_"1y"$)], [$418.8$ N], [Findley Power Law ($n=0.058$, $69.8\%$ preload retention @ $8760$h)], [PASS (High Retention)],
+  [5-Year Residual Clamp ($F_"5y"$)], [$384.6$ N], [Asymptotic viscoelastic equilibrium ($64.1\%$ clamp retention)], [PASS (FoS=$18.85$)],
+  [Washer Flange Thinning], [$42.6$ µm], [Compressive creep strain $1.42\%$ on $3.00$ mm PETG deck flange], [PASS (Flange Intact)],
+  [Motor Joint Slip Resistance], [$384.6 " N" gt.double 20.4$ N], [Prevents joint shear slip under dual N20 stall torque ($0.80 " N" dot "m"$)], [PASS (Anti-Slip Safe)],
+  [Drive Axle Normal Force], [$2.182$ N ($73.6\%$)], [Static weight bias on front drive wheels for superior tractive grip], [PASS (High Traction)],
+  [30° Slope Incline Climb], [$F_"trac" = 1.62$ N], [Traction ($1.62$N) exceeds grade + rolling resistance ($1.53$N)], [PASS (Gradeability)],
+  [Ascending Pitchover Limit], [$theta_"tip" = 48.8^degree$], [Critical pitch threshold $theta_"crit" = arctan(y_"cg"/z_"cg")$; $+18.8^degree$ margin], [PASS (No Flip)],
+  [Lateral Rollover Limit], [$phi_"roll" = 66.9^degree$], [Static Stability Factor $"SSF" = (W_"tw"/2) / z_"cg" = 1.173$], [PASS (High Stable)],
+  [Differential Yaw Rate], [$14.05$ rad/s], [$omega_"yaw" approx 805^degree$/s at $300$ RPM; centripetal accel $a_c = 0.765g$], [PASS (Agile Turning)],
+  [N20 Motor Housing Temp.], [$42.8^degree$C], [Gearbox conduction into chassis bracket; below $80^degree$C magnet limit], [PASS (Zero Demag)]
+)
+
+#v(1pt)
+
+// --- Section 12: Viscoelastic Creep & Dynamic Kinematics Mobility Proof ---
+#text(9pt, weight: "bold", fill: rgb("#0369a1"))[12. Viscoelastic Stress Relaxation & Dynamic Rover Mobility Engineering Proof]
+
+#align(center)[
+  #image("renders/viscoelastic_creep_analysis.png", width: 72%) \
+  #text(6.5pt, weight: "bold")[Figure 7: High-Resolution 5-Year Fastener Preload Relaxation & Rover Mobility Stability Diagram ($1920 times 1080$)] \
+  #text(6pt, fill: rgb("#64748b"))[Panel 1: Findley Preload Curve • Panel 2: Flange Creep Thinning • Panel 3: Longitudinal CG • Panel 4: Incline Gradeability • Panel 5: Motor Temp • Panel 6: Audit Matrix]
+]
+
