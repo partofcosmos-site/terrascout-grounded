@@ -103,6 +103,13 @@ RENDER_VIEWS = [
         "desc": "Ultrasonic Dual-Barrel Sensor Turret Bracket Detail",
         "camera": "0,0,0,45,0,25,75",
         "colorscheme": "Tomorrow Night"
+    },
+    {
+        "part_id": 8,
+        "name": "cross_section.png",
+        "desc": "Rover Longitudinal Cross-Sectional Slice (Battery Sled & Mezzanine Convection)",
+        "camera": "0,0,0,60,0,30,220",
+        "colorscheme": "Tomorrow Night"
     }
 ]
 
@@ -315,6 +322,14 @@ def compile_cad_suite():
             "mating_hardware": "HC-SR04 / RCWL-1601 transducer cans (16.0 mm OD)",
             "clearance": "0.15 mm radial press-fit margin with SG90 horn pocket",
             "status": "PASS - Solid friction fit without adhesive requirement"
+        },
+        {
+            "subsystem": "18650 Battery Compartment Thermal Dissipation",
+            "feature": "Mezzanine Convection Chimney & Ground Air Intake",
+            "cad_dimension": "75x40x19.5mm sled envelope, 8.5mm vertical plenum, 4x 14x3.5mm floor slots, 22x14mm central chimney",
+            "mating_hardware": "Dual 18650 Li-ion cells in ABS sled (2S 7.4V)",
+            "clearance": "20 mW nominal Joule heating, 460 mW stall peak; passive buoyancy velocity 0.12 m/s; Delta T < 1.4 deg C",
+            "status": "PASS - Zero thermal throttling; natural convection draft prevents heat pocketing"
         }
     ]
 

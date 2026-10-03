@@ -608,6 +608,13 @@ if (part_id == 1 || render_mode == "exploded") {
     caster_mount();
 } else if (part_id == 7 || render_mode == "print_bed") {
     print_bed_layout();
+} else if (part_id == 8 || render_mode == "cutaway" || render_mode == "cross_section") {
+    // Longitudinal cross-sectional slice showing internal battery sled, mezzanine airflow, and thermal convective channels
+    difference() {
+        full_assembly(explode_dist=0);
+        translate([0, deck_width/2 + 10, 0])
+            cube([deck_length + 40, deck_width + 20, 120], center=true);
+    }
 } else {
     // Default assembly
     full_assembly(explode_dist=0);
