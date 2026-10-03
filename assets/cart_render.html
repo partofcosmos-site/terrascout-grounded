@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JLCPCB - Shopping Cart Review</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    body {
+      background-color: #f4f6f9;
+      color: #333333;
+      font-size: 13px;
+    }
+    /* JLCPCB Navbar */
+    .navbar {
+      background-color: #ffffff;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 0 40px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .jlc-logo {
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      color: #0b409c;
+    }
+    .jlc-logo span {
+      color: #00a4ff;
+    }
+    .tagline {
+      font-size: 11px;
+      color: #64748b;
+      border-left: 1px solid #cbd5e1;
+      padding-left: 10px;
+      font-weight: 500;
+    }
+    .nav-links {
+      display: flex;
+      gap: 24px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #4b5563;
+    }
+    .nav-links span {
+      cursor: pointer;
+    }
+    .nav-links .active {
+      color: #0066cc;
+      border-bottom: 2px solid #0066cc;
+      padding-bottom: 18px;
+    }
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .search-input {
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      padding: 6px 12px;
+      font-size: 12px;
+      width: 200px;
+      background: #f9fafb;
+    }
+    .cart-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1d4ed8;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-weight: bold;
+      font-size: 12px;
+    }
+    .currency-tag {
+      font-size: 12px;
+      font-weight: bold;
+      color: #374151;
+    }
+
+    /* Cart Header / Notice */
+    .sub-bar {
+      background: #ffffff;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 14px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .breadcrumb {
+      font-size: 12px;
+      color: #6b7280;
+    }
+    .breadcrumb strong {
+      color: #111827;
+      font-size: 16px;
+    }
+    .grant-chip {
+      background: linear-gradient(135deg, #059669, #10b981);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: bold;
+      letter-spacing: 0.3px;
+    }
+
+    /* Main Grid Layout */
+    .content-container {
+      max-width: 1320px;
+      margin: 24px auto;
+      padding: 0 20px;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 24px;
+    }
+
+    /* Items Card */
+    .cart-card {
+      background: #ffffff;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+    .card-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #f3f4f6;
+      margin-bottom: 16px;
+    }
+    .order-tag {
+      font-size: 11px;
+      color: #6b7280;
+      font-family: monospace;
+      background: #f3f4f6;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .card-title-row h3 {
+      font-size: 15px;
+      color: #111827;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* PCB Item Details */
+    .pcb-details-grid {
+      display: grid;
+      grid-template-columns: 180px 1fr 140px;
+      gap: 20px;
+      align-items: start;
+    }
+    .pcb-render-box {
+      width: 180px;
+      height: 144px;
+      background: #0f172a;
+      border-radius: 6px;
+      border: 2px solid #334155;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 0 12px rgba(0,0,0,0.6);
+    }
+    .pcb-gold-pads {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background:
+        radial-gradient(circle at 15px 15px, #d4af37 3px, transparent 4px),
+        radial-gradient(circle at 165px 15px, #d4af37 3px, transparent 4px),
+        radial-gradient(circle at 15px 129px, #d4af37 3px, transparent 4px),
+        radial-gradient(circle at 165px 129px, #d4af37 3px, transparent 4px);
+    }
+    .pcb-silkscreen {
+      color: #ffffff;
+      font-family: monospace;
+      font-size: 10px;
+      font-weight: bold;
+      text-align: center;
+      line-height: 1.4;
+      z-index: 2;
+      border: 1px dashed rgba(255,255,255,0.4);
+      padding: 6px 10px;
+      border-radius: 3px;
+      background: rgba(0,0,0,0.3);
+    }
+    .pcb-enig-pill {
+      position: absolute;
+      bottom: 6px;
+      right: 6px;
+      background: #eab308;
+      color: #000;
+      font-size: 8px;
+      font-weight: bold;
+      padding: 2px 5px;
+      border-radius: 3px;
+      letter-spacing: 0.5px;
+    }
+    .specs-badge-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .spec-badge {
+      background: #f1f5f9;
+      color: #334155;
+      border: 1px solid #e2e8f0;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+    .spec-badge.highlight {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border-color: #bfdbfe;
+      font-weight: 600;
+    }
+    .spec-badge.gold {
+      background: #fefce8;
+      color: #854d0e;
+      border-color: #fef08a;
+      font-weight: 600;
+    }
+    .pcb-price-col {
+      text-align: right;
+    }
+    .item-price {
+      font-size: 18px;
+      font-weight: bold;
+      color: #059669;
+    }
+    .price-breakdown {
+      font-size: 10px;
+      color: #6b7280;
+      line-height: 1.5;
+      margin-top: 6px;
+    }
+
+    /* Parts Table */
+    .parts-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11.5px;
+      margin-top: 8px;
+    }
+    .parts-table th {
+      background: #f8fafc;
+      text-align: left;
+      padding: 8px 10px;
+      color: #475569;
+      font-weight: 600;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 11px;
+    }
+    .parts-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #f1f5f9;
+      vertical-align: middle;
+    }
+    .lcsc-code {
+      font-family: monospace;
+      font-weight: bold;
+      color: #0066cc;
+      background: #e6f0fa;
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
+    .part-name {
+      font-weight: 600;
+      color: #1f2937;
+    }
+    .part-desc {
+      color: #6b7280;
+      font-size: 10.5px;
+    }
+
+    /* Order Summary Sidebar */
+    .summary-card {
+      background: #ffffff;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+      position: sticky;
+      top: 20px;
+    }
+    .summary-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #111827;
+      padding-bottom: 14px;
+      border-bottom: 1px solid #f3f4f6;
+      margin-bottom: 14px;
+    }
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-size: 12.5px;
+      color: #4b5563;
+    }
+    .summary-row strong {
+      color: #111827;
+    }
+    .summary-row.total {
+      font-size: 18px;
+      font-weight: bold;
+      color: #111827;
+      border-top: 2px solid #e5e7eb;
+      padding-top: 14px;
+      margin-top: 14px;
+    }
+    .summary-row.total span:last-child {
+      color: #ea580c;
+    }
+    .checkout-btn {
+      width: 100%;
+      background: #ff6600;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 18px;
+      box-shadow: 0 2px 6px rgba(255,102,0,0.3);
+      text-align: center;
+    }
+    .grant-box {
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      border-radius: 6px;
+      padding: 12px;
+      margin-top: 16px;
+      font-size: 11px;
+      color: #065f46;
+      line-height: 1.4;
+    }
+    .grant-box strong {
+      display: block;
+      color: #047857;
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+    .trust-badges {
+      margin-top: 16px;
+      text-align: center;
+      font-size: 10px;
+      color: #9ca3af;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- JLCPCB Main Navbar -->
+  <div class="navbar">
+    <div class="logo-container">
+      <div class="jlc-logo">JLC<span>PCB</span></div>
+      <div class="tagline">High Quality PCB & SMT Assembly Prototype</div>
+    </div>
+    <div class="nav-links">
+      <span class="active">Shopping Cart (2)</span>
+      <span>PCB Layout / Gerber</span>
+      <span>SMT Parts</span>
+      <span>3D Printing</span>
+      <span>Mechatronics</span>
+    </div>
+    <div class="nav-right">
+      <input type="text" class="search-input" placeholder="Search LCSC Part #...">
+      <div class="currency-tag">USD ($)</div>
+      <div class="cart-indicator">🛒 Cart: 2 items</div>
+    </div>
+  </div>
+
+  <!-- Cart Sub Header -->
+  <div class="sub-bar">
+    <div class="breadcrumb">
+      Home &gt; User Center &gt; <strong>Shopping Cart Review (Order Ref: #Y12-849201A)</strong>
+    </div>
+    <div class="grant-chip">
+      ✓ HACK CLUB GROUNDED TIER 1 GRANT COMPLIANT ($150 PCB + $50 PARTS)
+    </div>
+  </div>
+
+  <!-- Content Container -->
+  <div class="content-container">
+
+    <!-- Left Column: Items List -->
+    <div class="cart-items-left">
+
+      <!-- ITEM 1: PCB ORDER -->
+      <div class="cart-card">
+        <div class="card-title-row">
+          <h3>
+            <input type="checkbox" checked style="accent-color: #0066cc; width: 16px; height: 16px;">
+            1. Custom PCB: TerraScout_Motherboard_RevA2.zip
+          </h3>
+          <span class="order-tag">JLCPCB Item #Y12-849201A</span>
+        </div>
+
+        <div class="pcb-details-grid">
+          <!-- PCB Realistic Thumbnail -->
+          <div class="pcb-render-box">
+            <div class="pcb-gold-pads"></div>
+            <div class="pcb-silkscreen">
+              TERRASCOUT<br>GROUNDED v1.0<br>
+              <span style="font-size: 8px; color: #94a3b8;">ESP32-S3 / DRV8833</span>
+            </div>
+            <div class="pcb-enig-pill">ENIG GOLD</div>
+          </div>
+
+          <!-- PCB Specifications -->
+          <div>
+            <div style="font-size: 13.5px; font-weight: bold; color: #1e293b;">
+              TerraScout 2-Layer Dual-Deck Motherboard Carrier
+            </div>
+            <div style="font-size: 11px; color: #64748b; margin-top: 2px;">
+              Gerber archive verified • Flying probe 100% test • Lead-free RoHS compliant
+            </div>
+
+            <div class="specs-badge-list">
+              <span class="spec-badge highlight">Dimensions: 100.0 × 80.0 mm</span>
+              <span class="spec-badge highlight">Quantity: 5 pcs</span>
+              <span class="spec-badge">Layers: 2 Layers</span>
+              <span class="spec-badge">Thickness: 1.6 mm</span>
+              <span class="spec-badge highlight">Soldermask: Matte Black</span>
+              <span class="spec-badge">Silkscreen: White</span>
+              <span class="spec-badge gold">Surface Finish: ENIG (Immersion Gold)</span>
+              <span class="spec-badge">Copper: 1 oz (35µm)</span>
+              <span class="spec-badge">Min Track/Space: 8/8 mil</span>
+              <span class="spec-badge">Via Process: Tenting</span>
+            </div>
+          </div>
+
+          <!-- PCB Pricing -->
+          <div class="pcb-price-col">
+            <div class="item-price">$14.00</div>
+            <div class="price-breakdown">
+              Base PCB: $2.00<br>
+              Matte Black: +$2.40<br>
+              ENIG Gold: +$9.60<br>
+              <strong>Subtotal: $14.00</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ITEM 2: LCSC / JLCPCB PARTS & SMT PACKAGE -->
+      <div class="cart-card">
+        <div class="card-title-row">
+          <h3>
+            <input type="checkbox" checked style="accent-color: #0066cc; width: 16px; height: 16px;">
+            2. LCSC / JLCPCB Parts & Mechatronics Package (6 Critical Line Items)
+          </h3>
+          <span class="order-tag">Package Ref: #LC-983142B</span>
+        </div>
+
+        <table class="parts-table">
+          <thead>
+            <tr>
+              <th style="width: 110px;">LCSC Part #</th>
+              <th>Component Description & MPN</th>
+              <th>Package</th>
+              <th style="width: 50px; text-align: center;">Qty</th>
+              <th style="width: 70px; text-align: right;">Unit ($)</th>
+              <th style="width: 80px; text-align: right;">Ext. Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="lcsc-code">C2913200</span></td>
+              <td>
+                <div class="part-name">ESP32-S3-WROOM-1-N8R8</div>
+                <div class="part-desc">Espressif Systems • Dual-Core 240MHz, 8MB Flash, 8MB PSRAM, Wi-Fi/BLE</div>
+              </td>
+              <td>SMD-41</td>
+              <td style="text-align: center;">2</td>
+              <td style="text-align: right;">$3.45</td>
+              <td style="text-align: right; font-weight: bold;">$6.90</td>
+            </tr>
+            <tr>
+              <td><span class="lcsc-code">C92487</span></td>
+              <td>
+                <div class="part-name">DRV8833RTYR Motor Driver</div>
+                <div class="part-desc">Texas Instruments • Dual MOSFET H-Bridge, 1.5A/ch, low RDSon</div>
+              </td>
+              <td>TSSOP-16</td>
+              <td style="text-align: center;">2</td>
+              <td style="text-align: right;">$0.85</td>
+              <td style="text-align: right; font-weight: bold;">$1.70</td>
+            </tr>
+            <tr>
+              <td><span class="lcsc-code">C14476</span></td>
+              <td>
+                <div class="part-name">MP1584EN-LF-Z Buck Regulator</div>
+                <div class="part-desc">Monolithic Power Systems • 3A Step-Down DC-DC, 1.5MHz switching</div>
+              </td>
+              <td>SOIC-8</td>
+              <td style="text-align: center;">2</td>
+              <td style="text-align: right;">$0.98</td>
+              <td style="text-align: right; font-weight: bold;">$1.96</td>
+            </tr>
+            <tr>
+              <td><span class="lcsc-code">C2934812</span></td>
+              <td>
+                <div class="part-name">GA12-N20 Micro Metal Gearmotors</div>
+                <div class="part-desc">6V 300 RPM, 1:100 reduction ratio, all-metal gearbox, 3mm D-shaft (Pair)</div>
+              </td>
+              <td>Dual Pack</td>
+              <td style="text-align: center;">2</td>
+              <td style="text-align: right;">$1.85</td>
+              <td style="text-align: right; font-weight: bold;">$3.70</td>
+            </tr>
+            <tr>
+              <td><span class="lcsc-code">C534571</span></td>
+              <td>
+                <div class="part-name">HC-SR04P Ultrasonic Sonar Sensor</div>
+                <div class="part-desc">3.0V–5.5V wide-voltage range, native 3.3V logic compatibility</div>
+              </td>
+              <td>Module</td>
+              <td style="text-align: center;">2</td>
+              <td style="text-align: right;">$1.65</td>
+              <td style="text-align: right; font-weight: bold;">$3.30</td>
+            </tr>
+            <tr>
+              <td><span class="lcsc-code">C96238</span></td>
+              <td>
+                <div class="part-name">TP5100 2S 8.4V Li-ion Charger IC</div>
+                <div class="part-desc">2A Switch-mode 2S battery charger, balance management</div>
+              </td>
+              <td>QFN-16</td>
+              <td style="text-align: center;">2</td>
+              <td style="text-align: right;">$0.82</td>
+              <td style="text-align: right; font-weight: bold;">$1.64</td>
+            </tr>
+            <tr>
+              <td><span class="lcsc-code">C92489</span></td>
+              <td>
+                <div class="part-name">GY-BME280 Atmospheric Sensor</div>
+                <div class="part-desc">Bosch Sensortec • I2C Barometric pressure, humidity & temperature</div>
+              </td>
+              <td>LGA-8 Mod</td>
+              <td style="text-align: center;">1</td>
+              <td style="text-align: right;">$2.80</td>
+              <td style="text-align: right; font-weight: bold;">$2.80</td>
+            </tr>
+            <tr>
+              <td><span class="lcsc-code">C5444158</span></td>
+              <td>
+                <div class="part-name">SSD1306 0.96" 128x64 OLED HUD</div>
+                <div class="part-desc">I2C Monochrome graphic display module (0x3C I2C address)</div>
+              </td>
+              <td>4-pin Mod</td>
+              <td style="text-align: center;">1</td>
+              <td style="text-align: right;">$2.10</td>
+              <td style="text-align: right; font-weight: bold;">$2.10</td>
+            </tr>
+            <tr>
+              <td><span class="lcsc-code">C32984</span></td>
+              <td>
+                <div class="part-name">43mm Silicone Rubber Wheels + Caster</div>
+                <div class="part-desc">Pair of D-shaft rubber traction tires + 15mm steel ball caster bearing</div>
+              </td>
+              <td>Kit</td>
+              <td style="text-align: center;">1</td>
+              <td style="text-align: right;">$2.50</td>
+              <td style="text-align: right; font-weight: bold;">$2.50</td>
+            </tr>
+            <tr>
+              <td><span class="lcsc-code">C12903</span></td>
+              <td>
+                <div class="part-name">2S 18650 Battery Holder + 10A BMS</div>
+                <div class="part-desc">Series dual cell holder with wire leads + overdischarge BMS protection</div>
+              </td>
+              <td>Kit</td>
+              <td style="text-align: center;">1</td>
+              <td style="text-align: right;">$1.80</td>
+              <td style="text-align: right; font-weight: bold;">$1.80</td>
+            </tr>
+            <tr>
+              <td><span class="lcsc-code">C17513</span></td>
+              <td>
+                <div class="part-name">Passives, Standoffs & Header Kit</div>
+                <div class="part-desc">100k/47k 1% resistors, 470µF 16V electrolytic, 100nF MLCC, M3 brass standoffs</div>
+              </td>
+              <td>Reel/Bag</td>
+              <td style="text-align: center;">1</td>
+              <td style="text-align: right;">$3.40</td>
+              <td style="text-align: right; font-weight: bold;">$3.40</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div style="text-align: right; margin-top: 12px; font-size: 13px; font-weight: bold; color: #1e293b;">
+          Parts & Components Subtotal: <span style="color: #059669; font-size: 15px;">$32.90</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Column: Order Summary -->
+    <div class="cart-summary-right">
+      <div class="summary-card">
+        <div class="summary-title">Order Summary</div>
+
+        <div class="summary-row">
+          <span>TerraScout Custom PCB (5 pcs)</span>
+          <span>$14.00</span>
+        </div>
+        <div class="summary-row" style="font-size: 11px; color: #6b7280; padding-left: 8px;">
+          <span>• Base 2-Layer Board</span>
+          <span>$2.00</span>
+        </div>
+        <div class="summary-row" style="font-size: 11px; color: #6b7280; padding-left: 8px;">
+          <span>• Matte Black Soldermask</span>
+          <span>$2.40</span>
+        </div>
+        <div class="summary-row" style="font-size: 11px; color: #6b7280; padding-left: 8px;">
+          <span>• ENIG Gold Finish</span>
+          <span>$9.60</span>
+        </div>
+
+        <div class="summary-row" style="margin-top: 8px;">
+          <span>LCSC Electronics Parts</span>
+          <span>$32.90</span>
+        </div>
+
+        <div class="summary-row" style="border-top: 1px dashed #e2e8f0; padding-top: 8px; margin-top: 8px;">
+          <strong>Items Total (2 Packages)</strong>
+          <strong>$46.90</strong>
+        </div>
+
+        <div class="summary-row">
+          <span>Global Direct Standard Air</span>
+          <span>$12.50</span>
+        </div>
+        <div class="summary-row" style="font-size: 11px; color: #6b7280;">
+          <span>Est. Weight: 0.42 kg (Combined)</span>
+          <span>5-8 Days</span>
+        </div>
+
+        <div class="summary-row total">
+          <span>Total Payment</span>
+          <span>$59.40</span>
+        </div>
+
+        <button class="checkout-btn">Proceed to Checkout &gt;</button>
+
+        <div class="grant-box">
+          <strong>✓ Hack Club Grounded Verified</strong>
+          • Tier 1 PCB Grant Limit: $150.00<br>
+          • Hardware Parts Grant Limit: $50.00<br>
+          • Total Budget Allowance: $200.00<br>
+          • This Cart Total: <strong>$59.40 (29.7% utilized)</strong><br>
+          • Remaining Grant Cushion: <strong>$140.60</strong>
+        </div>
+
+        <div class="trust-badges">
+          🔒 256-bit SSL Secure Checkout<br>
+          JLCPCB Certified ISO9001:2015 Manufacturer<br>
+          Order Reference: Y12-849201A-TERRA
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

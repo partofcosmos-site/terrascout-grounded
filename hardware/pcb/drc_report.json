@@ -1,0 +1,20 @@
+{
+  "board_dimensions_mm": "100.0 x 80.0",
+  "m3_bolt_pattern_span_mm": "80.0 x 60.0",
+  "copper_layers": 2,
+  "min_trace_width_signal_mm": 0.254,
+  "min_trace_width_power_mm": 0.762,
+  "min_drill_dia_mm": 0.3,
+  "min_clearance_mm": 0.1524,
+  "checks_evaluated": 7,
+  "defects_found": 4,
+  "warnings_found": 0,
+  "defects_list": [
+    "Net EN is floating or unrouted (only 1 nodes)",
+    "Net TX is floating or unrouted (only 1 nodes)",
+    "Net RX is floating or unrouted (only 1 nodes)",
+    "Net GPIO0 is floating or unrouted (only 1 nodes)"
+  ],
+  "warnings_list": [],
+  "drc_status": "FAILED"
+}

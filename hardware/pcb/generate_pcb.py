@@ -676,3 +676,1155 @@ class TerraScoutPCB:
         self.silk_lines.append(SilkLine(cx + 1.5, cy - 2, cx + 1.5, cy + 2, width=0.3))
 
 print("[*] TerraScout PCB Model configured.")
+
+# ==============================================================================
+# 4. RS-274X GERBER GENERATOR
+# ==============================================================================
+class GerberWriter:
+    @staticmethod
+    def _coord(x, y):
+        # 4.6 metric coordinates (nanometer precision)
+        return f"X{int(round(x * 1000000)):010d}Y{int(round(y * 1000000)):010d}"
+
+    @classmethod
+    def write_f_cu(cls, pcb, filepath):
+        lines = [
+            "G04 Layer: F.Cu (Top Copper) - TerraScout Grounded*",
+            "%FSLAX46Y46*%",
+            "%MOMM*%",
+            "%TF.GenerationSoftware,TerraScout_PCB_Engine,v1.0*%",
+            "%TF.FileFunction,Copper,L1,Top*%",
+            "%LPD*%",
+            # Standard Apertures
+            "%ADD10C,0.150000*%",  # fine silk
+            "%ADD11C,0.200000*%",  # isolation cut
+            "%ADD12C,0.254000*%",  # 10 mil
+            "%ADD13C,0.305000*%",  # 12 mil
+            "%ADD14C,0.635000*%",  # 25 mil
+            "%ADD15C,0.889000*%",  # 35 mil
+            "%ADD16C,1.143000*%",  # 45 mil
+            "%ADD17C,1.524000*%",  # 60 mil
+            "%ADD20C,1.600000*%",  # 0.1" pin round
+            "%ADD21R,1.600000X1.600000*%", # 0.1" pin 1 rect
+            "%ADD22C,1.800000*%",  # JST-XH round
+            "%ADD23R,1.800000X1.800000*%", # JST-XH rect
+            "%ADD24C,0.600000*%",  # Via pad
+            "%ADD25R,1.350000X0.420000*%", # SSOP-16 pad
+            "%ADD26R,3.400000X2.800000*%", # Thermal pad
+            "%ADD27R,2.400000X2.000000*%", # Module pad
+            "%ADD28R,1.000000X1.250000*%", # 0805 pad
+            "%ADD29R,1.200000X1.600000*%", # 1206 pad
+            "%ADD30C,6.200000*%",  # M3 mount pad
+            "%ADD31C,0.350000*%",  # Thermal spoke
+            "%ADD35C,2.200000*%",  # Isolation moat for round pad
+            "%ADD36R,2.200000X2.200000*%", # Isolation moat for rect pad
+            "%ADD37C,0.650000*%",  # Track clearance halo
+        ]
+
+        # 1. TOP GROUND PLANE FLOOD (GND Net)
+        lines.append("G04 Top Ground Plane Flood*")
+        lines.append("%LPD*%")
+        lines.append("G36*")
+        lines.append(f"{cls._coord(1.0, 1.0)}D02*")
+        lines.append(f"{cls._coord(99.0, 1.0)}D01*")
+        lines.append(f"{cls._coord(99.0, 79.0)}D01*")
+        lines.append(f"{cls._coord(1.0, 79.0)}D01*")
+        lines.append(f"{cls._coord(1.0, 1.0)}D01*")
+        lines.append("G37*")
+
+        # 2. CLEARANCE ISOLATION (Clear Polarity %LPC%)
+        lines.append("G04 Copper Clear Isolation Moats*")
+        lines.append("%LPC*%")
+        
+        # Clear halos around non-GND tracks
+        for t in pcb.tracks:
+            if t.layer == "F.Cu" and t.net != "GND":
+                lines.append("D37*")
+                lines.append(f"{cls._coord(t.x1, t.y1)}D02*")
+                lines.append(f"{cls._coord(t.x2, t.y2)}D01*")
+                
+        # Clear halos around non-GND pads
+        for p in pcb.pads:
+            if p.layer in ("All", "F.Cu") and p.net != "GND":
+                if p.shape == "rect":
+                    lines.append("D36*")
+                else:
+                    lines.append("D35*")
+                lines.append(f"{cls._coord(p.x, p.y)}D03*")
+
+        # Thermal relief isolation ring around GND through-hole pads
+        lines.append("D11*") # 0.2mm isolation moat
+        for p in pcb.pads:
+            if p.layer == "All" and p.net == "GND" and not p.component.startswith("MH"):
+                r_iso = max(p.w, p.h) / 2.0 + 0.25
+                n_pts = 16
+                for i in range(n_pts):
+                    a1 = 2 * math.pi * i / n_pts
+                    a2 = 2 * math.pi * (i + 1) / n_pts
+                    lines.append(f"{cls._coord(p.x + r_iso * math.cos(a1), p.y + r_iso * math.sin(a1))}D02*")
+                    lines.append(f"{cls._coord(p.x + r_iso * math.cos(a2), p.y + r_iso * math.sin(a2))}D01*")
+
+        # 3. DARK COPPER (Tracks, Pads, Thermal Relief Spokes, Vias)
+        lines.append("G04 Tracks, Pads and Thermal Relief Spokes*")
+        lines.append("%LPD*%")
+
+        # Flash Pads
+        for p in pcb.pads:
+            if p.layer not in ("All", "F.Cu"):
+                continue
+            ap = cls._select_pad_aperture(p)
+            lines.append(f"{ap}*")
+            lines.append(f"{cls._coord(p.x, p.y)}D03*")
+
+        # Draw 4-Spoke Thermal Relief on GND Pads
+        lines.append("D31*") # 0.35mm thermal spoke
+        for p in pcb.pads:
+            if p.layer == "All" and p.net == "GND" and not p.component.startswith("MH"):
+                spk = max(p.w, p.h) / 2.0 + 0.45
+                lines.append(f"{cls._coord(p.x - spk, p.y)}D02*")
+                lines.append(f"{cls._coord(p.x + spk, p.y)}D01*")
+                lines.append(f"{cls._coord(p.x, p.y - spk)}D02*")
+                lines.append(f"{cls._coord(p.x, p.y + spk)}D01*")
+
+        # Draw Tracks
+        for t in pcb.tracks:
+            if t.layer != "F.Cu":
+                continue
+            ap = cls._select_track_aperture(t.width)
+            lines.append(f"{ap}*")
+            lines.append(f"{cls._coord(t.x1, t.y1)}D02*")
+            lines.append(f"{cls._coord(t.x2, t.y2)}D01*")
+
+        # Draw Vias
+        lines.append("D24*")
+        for v in pcb.vias:
+            lines.append(f"{cls._coord(v.x, v.y)}D03*")
+
+        lines.append("M02*")
+        with open(filepath, "w") as f:
+            f.write("\n".join(lines) + "\n")
+        print(f"[+] Generated F.Cu Gerber: {filepath}")
+
+    @classmethod
+    def write_b_cu(cls, pcb, filepath):
+        lines = [
+            "G04 Layer: B.Cu (Bottom Copper) - TerraScout Grounded*",
+            "%FSLAX46Y46*%",
+            "%MOMM*%",
+            "%TF.GenerationSoftware,TerraScout_PCB_Engine,v1.0*%",
+            "%TF.FileFunction,Copper,L2,Bot*%",
+            "%LPD*%",
+            "%ADD10C,0.150000*%",
+            "%ADD11C,0.200000*%",
+            "%ADD12C,0.254000*%",
+            "%ADD13C,0.305000*%",
+            "%ADD14C,0.635000*%",
+            "%ADD15C,0.889000*%",
+            "%ADD16C,1.143000*%",
+            "%ADD20C,1.600000*%",
+            "%ADD21R,1.600000X1.600000*%",
+            "%ADD22C,1.800000*%",
+            "%ADD23R,1.800000X1.800000*%",
+            "%ADD24C,0.600000*%",
+            "%ADD27R,2.400000X2.000000*%",
+            "%ADD30C,6.200000*%",
+            "%ADD31C,0.350000*%",
+            "%ADD35C,2.200000*%",
+            "%ADD36R,2.200000X2.200000*%",
+            "%ADD37C,0.650000*%",
+        ]
+
+        # 1. BOTTOM GROUND PLANE FLOOD (GND Net)
+        lines.append("%LPD*%")
+        lines.append("G36*")
+        lines.append(f"{cls._coord(1.0, 1.0)}D02*")
+        lines.append(f"{cls._coord(99.0, 1.0)}D01*")
+        lines.append(f"{cls._coord(99.0, 79.0)}D01*")
+        lines.append(f"{cls._coord(1.0, 79.0)}D01*")
+        lines.append(f"{cls._coord(1.0, 1.0)}D01*")
+        lines.append("G37*")
+
+        # 2. CLEARANCE ISOLATION
+        lines.append("%LPC*%")
+        for t in pcb.tracks:
+            if t.layer == "B.Cu" and t.net != "GND":
+                lines.append("D37*")
+                lines.append(f"{cls._coord(t.x1, t.y1)}D02*")
+                lines.append(f"{cls._coord(t.x2, t.y2)}D01*")
+                
+        for p in pcb.pads:
+            if p.layer in ("All", "B.Cu") and p.net != "GND":
+                if p.shape == "rect":
+                    lines.append("D36*")
+                else:
+                    lines.append("D35*")
+                lines.append(f"{cls._coord(p.x, p.y)}D03*")
+
+        # Thermal relief isolation ring around GND through-hole pads
+        lines.append("D11*")
+        for p in pcb.pads:
+            if p.layer == "All" and p.net == "GND" and not p.component.startswith("MH"):
+                r_iso = max(p.w, p.h) / 2.0 + 0.25
+                n_pts = 16
+                for i in range(n_pts):
+                    a1 = 2 * math.pi * i / n_pts
+                    a2 = 2 * math.pi * (i + 1) / n_pts
+                    lines.append(f"{cls._coord(p.x + r_iso * math.cos(a1), p.y + r_iso * math.sin(a1))}D02*")
+                    lines.append(f"{cls._coord(p.x + r_iso * math.cos(a2), p.y + r_iso * math.sin(a2))}D01*")
+
+        # 3. DARK COPPER
+        lines.append("%LPD*%")
+        for p in pcb.pads:
+            if p.layer not in ("All", "B.Cu"):
+                continue
+            ap = cls._select_pad_aperture(p)
+            lines.append(f"{ap}*")
+            lines.append(f"{cls._coord(p.x, p.y)}D03*")
+
+        # Thermal relief spokes on bottom
+        lines.append("D31*")
+        for p in pcb.pads:
+            if p.layer == "All" and p.net == "GND" and not p.component.startswith("MH"):
+                spk = max(p.w, p.h) / 2.0 + 0.45
+                lines.append(f"{cls._coord(p.x - spk, p.y)}D02*")
+                lines.append(f"{cls._coord(p.x + spk, p.y)}D01*")
+                lines.append(f"{cls._coord(p.x, p.y - spk)}D02*")
+                lines.append(f"{cls._coord(p.x, p.y + spk)}D01*")
+
+        for t in pcb.tracks:
+            if t.layer != "B.Cu":
+                continue
+            ap = cls._select_track_aperture(t.width)
+            lines.append(f"{ap}*")
+            lines.append(f"{cls._coord(t.x1, t.y1)}D02*")
+            lines.append(f"{cls._coord(t.x2, t.y2)}D01*")
+
+        lines.append("D24*")
+        for v in pcb.vias:
+            lines.append(f"{cls._coord(v.x, v.y)}D03*")
+
+        lines.append("M02*")
+        with open(filepath, "w") as f:
+            f.write("\n".join(lines) + "\n")
+        print(f"[+] Generated B.Cu Gerber: {filepath}")
+
+    @classmethod
+    def write_f_mask(cls, pcb, filepath):
+        lines = [
+            "G04 Layer: F.Mask (Top Solder Mask) - TerraScout Grounded*",
+            "%FSLAX46Y46*%",
+            "%MOMM*%",
+            "%TF.GenerationSoftware,TerraScout_PCB_Engine,v1.0*%",
+            "%TF.FileFunction,Soldermask,Top*%",
+            "%LPD*%",
+            "%ADD40C,1.700000*%",  # +0.1mm expansion
+            "%ADD41R,1.700000X1.700000*%",
+            "%ADD42C,1.900000*%",
+            "%ADD43R,1.900000X1.900000*%",
+            "%ADD44C,0.700000*%",
+            "%ADD45R,1.450000X0.520000*%",
+            "%ADD46R,3.500000X2.900000*%",
+            "%ADD47R,2.500000X2.100000*%",
+            "%ADD48R,1.100000X1.350000*%",
+            "%ADD49R,1.300000X1.700000*%",
+            "%ADD50C,6.300000*%",
+        ]
+        for p in pcb.pads:
+            if p.layer not in ("All", "F.Cu"):
+                continue
+            ap = cls._select_mask_aperture(p)
+            lines.append(f"{ap}*")
+            lines.append(f"{cls._coord(p.x, p.y)}D03*")
+
+        lines.append("M02*")
+        with open(filepath, "w") as f:
+            f.write("\n".join(lines) + "\n")
+        print(f"[+] Generated F.Mask Gerber: {filepath}")
+
+    @classmethod
+    def write_b_mask(cls, pcb, filepath):
+        lines = [
+            "G04 Layer: B.Mask (Bottom Solder Mask) - TerraScout Grounded*",
+            "%FSLAX46Y46*%",
+            "%MOMM*%",
+            "%TF.GenerationSoftware,TerraScout_PCB_Engine,v1.0*%",
+            "%TF.FileFunction,Soldermask,Bot*%",
+            "%LPD*%",
+            "%ADD40C,1.700000*%",
+            "%ADD41R,1.700000X1.700000*%",
+            "%ADD42C,1.900000*%",
+            "%ADD43R,1.900000X1.900000*%",
+            "%ADD47R,2.500000X2.100000*%",
+            "%ADD50C,6.300000*%",
+        ]
+        for p in pcb.pads:
+            if p.layer not in ("All", "B.Cu"):
+                continue
+            ap = cls._select_mask_aperture(p)
+            lines.append(f"{ap}*")
+            lines.append(f"{cls._coord(p.x, p.y)}D03*")
+
+        lines.append("M02*")
+        with open(filepath, "w") as f:
+            f.write("\n".join(lines) + "\n")
+        print(f"[+] Generated B.Mask Gerber: {filepath}")
+
+    @classmethod
+    def write_f_silk(cls, pcb, filepath):
+        lines = [
+            "G04 Layer: F.Silk (Top Silkscreen) - TerraScout Grounded*",
+            "%FSLAX46Y46*%",
+            "%MOMM*%",
+            "%TF.GenerationSoftware,TerraScout_PCB_Engine,v1.0*%",
+            "%TF.FileFunction,Legend,Top*%",
+            "%LPD*%",
+            "%ADD10C,0.150000*%",  # 0.15mm line width
+            "%ADD11C,0.250000*%",  # 0.25mm bold line width
+        ]
+        lines.append("D10*")
+        for sl in pcb.silk_lines:
+            if sl.layer == "F.Silk":
+                lines.append(f"{cls._coord(sl.x1, sl.y1)}D02*")
+                lines.append(f"{cls._coord(sl.x2, sl.y2)}D01*")
+
+        # Silkscreen text rendered as vector strokes
+        for st in pcb.silk_texts:
+            if st.layer == "F.Silk":
+                cls._render_text_strokes(lines, st)
+
+        lines.append("M02*")
+        with open(filepath, "w") as f:
+            f.write("\n".join(lines) + "\n")
+        print(f"[+] Generated F.Silk Gerber: {filepath}")
+
+    @classmethod
+    def write_b_silk(cls, pcb, filepath):
+        lines = [
+            "G04 Layer: B.Silk (Bottom Silkscreen) - TerraScout Grounded*",
+            "%FSLAX46Y46*%",
+            "%MOMM*%",
+            "%TF.GenerationSoftware,TerraScout_PCB_Engine,v1.0*%",
+            "%TF.FileFunction,Legend,Bot*%",
+            "%LPD*%",
+            "%ADD10C,0.150000*%",
+        ]
+        lines.append("D10*")
+        # Bottom branding vector strokes
+        st = SilkText("TERRASCOUT BOTTOM - HACK CLUB GROUNDED", 50.0, 40.0, size=1.4)
+        cls._render_text_strokes(lines, st)
+
+        lines.append("M02*")
+        with open(filepath, "w") as f:
+            f.write("\n".join(lines) + "\n")
+        print(f"[+] Generated B.Silk Gerber: {filepath}")
+
+    @classmethod
+    def write_edge_cuts(cls, pcb, filepath):
+        lines = [
+            "G04 Layer: Edge.Cuts (Board Outline 100x80mm) - TerraScout Grounded*",
+            "%FSLAX46Y46*%",
+            "%MOMM*%",
+            "%TF.GenerationSoftware,TerraScout_PCB_Engine,v1.0*%",
+            "%TF.FileFunction,Profile,NP*%",
+            "%LPD*%",
+            "%ADD10C,0.150000*%",
+        ]
+        lines.append("D10*")
+        for seg in pcb.edge_cuts:
+            lines.append(f"{cls._coord(seg[0], seg[1])}D02*")
+            lines.append(f"{cls._coord(seg[2], seg[3])}D01*")
+
+        lines.append("M02*")
+        with open(filepath, "w") as f:
+            f.write("\n".join(lines) + "\n")
+        print(f"[+] Generated Edge.Cuts Gerber: {filepath}")
+
+    @staticmethod
+    def _select_pad_aperture(p):
+        if p.component.startswith("MH"):
+            return "D30"
+        if p.component == "U2" and p.pin_num == "EP":
+            return "D26"
+        if p.component == "U2":
+            return "D25"
+        if p.component in ("U3", "U4"):
+            return "D27"
+        if p.component.startswith("J") and p.component in ("J1", "J2", "J3", "J4", "J7", "J8"):
+            return "D23" if p.pin_num == "1" else "D22"
+        if p.component in ("C2", "C3"):
+            return "D29"
+        if p.component in ("C4", "C5", "R1", "R2", "R3", "R4", "R5", "R6", "D1", "D2"):
+            return "D28"
+        if p.shape == "rect":
+            return "D21"
+        return "D20"
+
+    @staticmethod
+    def _select_mask_aperture(p):
+        if p.component.startswith("MH"):
+            return "D50"
+        if p.component == "U2" and p.pin_num == "EP":
+            return "D46"
+        if p.component == "U2":
+            return "D45"
+        if p.component in ("U3", "U4"):
+            return "D47"
+        if p.component.startswith("J") and p.component in ("J1", "J2", "J3", "J4", "J7", "J8"):
+            return "D43" if p.pin_num == "1" else "D42"
+        if p.component in ("C2", "C3"):
+            return "D49"
+        if p.component in ("C4", "C5", "R1", "R2", "R3", "R4", "R5", "R6", "D1", "D2"):
+            return "D48"
+        if p.shape == "rect":
+            return "D41"
+        return "D40"
+
+    @staticmethod
+    def _select_track_aperture(width):
+        if width >= 1.5: return "D17"
+        if width >= 1.1: return "D16"
+        if width >= 0.8: return "D15"
+        if width >= 0.6: return "D14"
+        if width >= 0.3: return "D13"
+        return "D12"
+
+    @classmethod
+    def _render_text_strokes(cls, lines, st):
+        # Generates clean vector stroke segments for ASCII characters
+        scale = st.size * 0.7
+        spacing = scale * 0.85
+        cx, cy = st.x, st.y
+        text = str(st.text).upper()
+        # center align
+        start_x = cx - (len(text) * spacing) / 2.0
+        
+        # Stroke font dictionary for basic letters & symbols
+        strokes = {
+            'A': [(0,0, 0,1), (0,1, 1,1), (1,1, 1,0), (0,0.5, 1,0.5)],
+            'B': [(0,0, 0,1), (0,1, 0.8,1), (0.8,1, 1,0.75), (1,0.75, 0.8,0.5), (0.8,0.5, 0,0.5), (0.8,0.5, 1,0.25), (1,0.25, 0.8,0), (0.8,0, 0,0)],
+            'C': [(1,1, 0,1), (0,1, 0,0), (0,0, 1,0)],
+            'D': [(0,0, 0,1), (0,1, 0.7,1), (0.7,1, 1,0.5), (1,0.5, 0.7,0), (0.7,0, 0,0)],
+            'E': [(1,1, 0,1), (0,1, 0,0), (0,0, 1,0), (0,0.5, 0.7,0.5)],
+            'F': [(0,0, 0,1), (0,1, 1,1), (0,0.5, 0.7,0.5)],
+            'G': [(1,1, 0,1), (0,1, 0,0), (0,0, 1,0), (1,0, 1,0.5), (1,0.5, 0.5,0.5)],
+            'H': [(0,0, 0,1), (1,0, 1,1), (0,0.5, 1,0.5)],
+            'I': [(0.5,0, 0.5,1), (0.2,1, 0.8,1), (0.2,0, 0.8,0)],
+            'J': [(0,0.3, 0.3,0), (0.3,0, 0.7,0), (0.7,0, 0.7,1)],
+            'K': [(0,0, 0,1), (1,1, 0,0.5), (0,0.5, 1,0)],
+            'L': [(0,1, 0,0), (0,0, 1,0)],
+            'M': [(0,0, 0,1), (0,1, 0.5,0.5), (0.5,0.5, 1,1), (1,1, 1,0)],
+            'N': [(0,0, 0,1), (0,1, 1,0), (1,0, 1,1)],
+            'O': [(0,0, 0,1), (0,1, 1,1), (1,1, 1,0), (1,0, 0,0)],
+            'P': [(0,0, 0,1), (0,1, 1,1), (1,1, 1,0.5), (1,0.5, 0,0.5)],
+            'Q': [(0,0, 0,1), (0,1, 1,1), (1,1, 1,0), (1,0, 0,0), (0.6,0.3, 1,-0.1)],
+            'R': [(0,0, 0,1), (0,1, 1,1), (1,1, 1,0.5), (1,0.5, 0,0.5), (0.5,0.5, 1,0)],
+            'S': [(1,1, 0,1), (0,1, 0,0.5), (0,0.5, 1,0.5), (1,0.5, 1,0), (1,0, 0,0)],
+            'T': [(0.5,0, 0.5,1), (0,1, 1,1)],
+            'U': [(0,1, 0,0), (0,0, 1,0), (1,0, 1,1)],
+            'V': [(0,1, 0.5,0), (0.5,0, 1,1)],
+            'W': [(0,1, 0.2,0), (0.2,0, 0.5,0.6), (0.5,0.6, 0.8,0), (0.8,0, 1,1)],
+            'X': [(0,0, 1,1), (0,1, 1,0)],
+            'Y': [(0,1, 0.5,0.5), (1,1, 0.5,0.5), (0.5,0.5, 0.5,0)],
+            'Z': [(0,1, 1,1), (1,1, 0,0), (0,0, 1,0)],
+            '0': [(0,0, 0,1), (0,1, 1,1), (1,1, 1,0), (1,0, 0,0), (0,0, 1,1)],
+            '1': [(0.2,0.8, 0.5,1), (0.5,1, 0.5,0), (0.2,0, 0.8,0)],
+            '2': [(0,1, 1,1), (1,1, 1,0.5), (1,0.5, 0,0), (0,0, 1,0)],
+            '3': [(0,1, 1,1), (1,1, 0.5,0.5), (0.5,0.5, 1,0.5), (1,0.5, 1,0), (1,0, 0,0)],
+            '4': [(0,1, 0,0.5), (0,0.5, 1,0.5), (0.8,1, 0.8,0)],
+            '5': [(1,1, 0,1), (0,1, 0,0.5), (0,0.5, 1,0.5), (1,0.5, 1,0), (1,0, 0,0)],
+            '6': [(1,1, 0,1), (0,1, 0,0), (0,0, 1,0), (1,0, 1,0.5), (1,0.5, 0,0.5)],
+            '7': [(0,1, 1,1), (1,1, 0.3,0)],
+            '8': [(0,0, 0,1), (0,1, 1,1), (1,1, 1,0), (1,0, 0,0), (0,0.5, 1,0.5)],
+            '9': [(0,0, 1,0), (1,0, 1,1), (1,1, 0,1), (0,1, 0,0.5), (0,0.5, 1,0.5)],
+            '-': [(0.2,0.5, 0.8,0.5)],
+            '+': [(0.5,0.2, 0.5,0.8), (0.2,0.5, 0.8,0.5)],
+            '.': [(0.4,0, 0.6,0)],
+            ':': [(0.5,0.7, 0.5,0.8), (0.5,0.2, 0.5,0.3)],
+            '_': [(0,0, 1,0)],
+            '/': [(0,0, 1,1)],
+            ' ': []
+        }
+
+        for i, ch in enumerate(text):
+            segs = strokes.get(ch, strokes[' '])
+            ox = start_x + i * spacing
+            oy = cy
+            for s in segs:
+                if st.angle == 90:
+                    x1 = cx - s[1] * scale
+                    y1 = start_x + i * spacing + s[0] * scale
+                    x2 = cx - s[3] * scale
+                    y2 = start_x + i * spacing + s[2] * scale
+                else:
+                    x1 = ox + s[0] * scale
+                    y1 = oy + s[1] * scale
+                    x2 = ox + s[2] * scale
+                    y2 = oy + s[3] * scale
+                lines.append(f"{cls._coord(x1, y1)}D02*")
+                lines.append(f"{cls._coord(x2, y2)}D01*")
+
+# ==============================================================================
+# 5. EXCELLON DRILL GENERATOR
+# ==============================================================================
+class ExcellonWriter:
+    @classmethod
+    def write_drill(cls, pcb, filepath):
+        lines = [
+            "M48",
+            "; DRILL file {TerraScout Rover 2-Layer PCB}",
+            "; FORMAT={-:-/ absolute / metric / decimal}",
+            "FMAT,2",
+            "METRIC,TZ",
+            "T1C0.300",  # Ground & Thermal vias
+            "T2C0.900",  # 0.1\" Header pins
+            "T3C1.000",  # JST-XH pins
+            "T4C1.200",  # Module heavy pins
+            "T5C3.200",  # M3 Mounting holes
+            "%",
+            "G90",
+            "G05",
+        ]
+
+        # Tool 1: 0.3mm vias
+        lines.append("T1")
+        for v in pcb.vias:
+            lines.append(f"X{v.x:.3f}Y{v.y:.3f}")
+
+        # Tool 2: 0.9mm pads
+        lines.append("T2")
+        for p in pcb.pads:
+            if abs(p.drill - 0.9) < 0.05:
+                lines.append(f"X{p.x:.3f}Y{p.y:.3f}")
+
+        # Tool 3: 1.0mm pads
+        lines.append("T3")
+        for p in pcb.pads:
+            if abs(p.drill - 1.0) < 0.05:
+                lines.append(f"X{p.x:.3f}Y{p.y:.3f}")
+
+        # Tool 4: 1.2mm pads
+        lines.append("T4")
+        for p in pcb.pads:
+            if abs(p.drill - 1.2) < 0.05:
+                lines.append(f"X{p.x:.3f}Y{p.y:.3f}")
+
+        # Tool 5: 3.2mm M3 mounting holes
+        lines.append("T5")
+        for mh in MOUNT_HOLES:
+            lines.append(f"X{mh['x']:.3f}Y{mh['y']:.3f}")
+
+        lines.append("M30")
+        with open(filepath, "w") as f:
+            f.write("\n".join(lines) + "\n")
+        print(f"[+] Generated Excellon Drill: {filepath}")
+
+# ==============================================================================
+# 6. KICAD PCB WRITER (.kicad_pcb)
+# ==============================================================================
+class KiCadPCBWriter:
+    @classmethod
+    def write_kicad_pcb(cls, pcb, filepath):
+        nets = list(set([p.net for p in pcb.pads] + [t.net for t in pcb.tracks]))
+        nets.sort()
+        if "GND" in nets:
+            nets.remove("GND")
+            nets.insert(0, "GND")
+        net_map = {name: idx + 1 for idx, name in enumerate(nets)}
+        net_map[""] = 0
+
+        lines = [
+            '(kicad_pcb (version 20221018) (generator "TerraScout_PCB_Engine")',
+            '  (general',
+            '    (thickness 1.6)',
+            '  )',
+            '  (paper "A4")',
+            '  (layers',
+            '    (0 "F.Cu" signal)',
+            '    (31 "B.Cu" signal)',
+            '    (34 "B.Paste" user)',
+            '    (35 "F.Paste" user)',
+            '    (36 "B.SilkS" user "B.Silkscreen")',
+            '    (37 "F.SilkS" user "F.Silkscreen")',
+            '    (38 "B.Mask" user)',
+            '    (39 "F.Mask" user)',
+            '    (44 "Edge.Cuts" user)',
+            '  )',
+            '  (setup',
+            '    (pad_to_mask_clearance 0.05)',
+            '    (pcbplotparams',
+            '      (layerselection 0x00010fc_ffffffff)',
+            '      (plotframeref false)',
+            '      (viasonmask false)',
+            '      (mode 1)',
+            '      (usegerberextensions true)',
+            '      (usegerberattributes true)',
+            '      (usegerberadvancedattributes true)',
+            '      (creategerberjobfile true)',
+            '      (outputdirectory "gerbers/")',
+            '    )',
+            '  )',
+            '  (net 0 "")',
+        ]
+        for name, nid in net_map.items():
+            if nid > 0:
+                lines.append(f'  (net {nid} "{name}")')
+
+        # Board Outline
+        for seg in pcb.edge_cuts:
+            lines.append(f'  (gr_line (start {seg[0]:.3f} {seg[1]:.3f}) (end {seg[2]:.3f} {seg[3]:.3f}) (layer "Edge.Cuts") (width 0.15))')
+
+        # Footprints
+        for comp in pcb.components:
+            lines.append(f'  (footprint "{comp.footprint}" (layer "F.Cu")')
+            lines.append(f'    (at {comp.x:.3f} {comp.y:.3f} {comp.rot})')
+            lines.append(f'    (property "Reference" "{comp.ref}" (at 0 -2.5 0) (layer "F.SilkS") (effects (font (size 1 1) (thickness 0.15))))')
+            lines.append(f'    (property "Value" "{comp.val}" (at 0 2.5 0) (layer "F.Fab") (effects (font (size 1 1) (thickness 0.15))))')
+            for p in comp.pads:
+                nid = net_map.get(p.net, 0)
+                shape = "rect" if p.shape == "rect" else "circle"
+                pad_type = "thru_hole" if p.drill > 0 else "smd"
+                layers = '("*.Cu" "*.Mask")' if p.drill > 0 else '("F.Cu" "F.Mask" "F.Paste")'
+                drill_str = f' (drill {p.drill:.3f})' if p.drill > 0 else ''
+                lines.append(f'    (pad "{p.pin_num}" {pad_type} {shape} (at {p.x - comp.x:.3f} {p.y - comp.y:.3f}) (size {p.w:.3f} {p.h:.3f}){drill_str} (layers {layers}) (net {nid} "{p.net}"))')
+            lines.append('  )')
+
+        # Mounting Holes
+        for mh in MOUNT_HOLES:
+            lines.append(f'  (footprint "MountingHole:MountingHole_3.2mm_M3_Pad_Via" (layer "F.Cu")')
+            lines.append(f'    (at {mh["x"]:.3f} {mh["y"]:.3f})')
+            lines.append(f'    (property "Reference" "{mh["name"]}" (at 0 -3.5 0) (layer "F.SilkS") (effects (font (size 1 1) (thickness 0.15))))')
+            lines.append(f'    (pad "1" thru_hole circle (at 0 0) (size {mh["pad"]:.3f} {mh["pad"]:.3f}) (drill {mh["drill"]:.3f}) (layers "*.Cu" "*.Mask") (net {net_map.get("GND", 1)} "GND"))')
+            lines.append('  )')
+
+        # Tracks
+        for t in pcb.tracks:
+            nid = net_map.get(t.net, 0)
+            lines.append(f'  (segment (start {t.x1:.3f} {t.y1:.3f}) (end {t.x2:.3f} {t.y2:.3f}) (width {t.width:.3f}) (layer "{t.layer}") (net {nid}))')
+
+        # Vias
+        for v in pcb.vias:
+            nid = net_map.get(v.net, 0)
+            lines.append(f'  (via (at {v.x:.3f} {v.y:.3f}) (size {v.pad:.3f}) (drill {v.drill:.3f}) (layers "F.Cu" "B.Cu") (net {nid}))')
+
+        # Zones (Top & Bottom Ground Planes)
+        for layer in ("F.Cu", "B.Cu"):
+            lines.append(f'  (zone (net {net_map.get("GND", 1)}) (net_name "GND") (layer "{layer}")')
+            lines.append('    (hatch edge 0.5)')
+            lines.append('    (connect_pads (clearance 0.25))')
+            lines.append('    (min_thickness 0.254)')
+            lines.append('    (filled_areas_thickness no)')
+            lines.append('    (fill (thermal_gap 0.3) (thermal_bridge_width 0.35))')
+            lines.append('    (polygon')
+            lines.append('      (pts')
+            lines.append('        (xy 1.0 1.0) (xy 99.0 1.0) (xy 99.0 79.0) (xy 1.0 79.0)')
+            lines.append('      )')
+            lines.append('    )')
+            lines.append('  )')
+
+        lines.append(')')
+        with open(filepath, "w") as f:
+            f.write("\n".join(lines) + "\n")
+        print(f"[+] Generated KiCad PCB File: {filepath}")
+
+# ==============================================================================
+# 7. BOM & CPL CENTROID EXPORTERS
+# ==============================================================================
+class AssemblyDataWriter:
+    @classmethod
+    def write_bom(cls, pcb, filepath):
+        lines = ["Designator,Quantity,Value,Footprint,Description,LCSC Part #"]
+        for comp in pcb.components:
+            lines.append(f'"{comp.ref}","1","{comp.val}","{comp.footprint}","{comp.desc}","{comp.lcsc}"')
+        with open(filepath, "w") as f:
+            f.write("\n".join(lines) + "\n")
+        print(f"[+] Generated BOM CSV: {filepath}")
+
+    @classmethod
+    def write_cpl(cls, pcb, filepath):
+        lines = ["Designator,Val,Package,Mid X,Mid Y,Rotation,Layer"]
+        for comp in pcb.components:
+            lines.append(f'"{comp.ref}","{comp.val}","{comp.footprint}",{comp.x:.3f},{comp.y:.3f},{comp.rot},"Top"')
+        with open(filepath, "w") as f:
+            f.write("\n".join(lines) + "\n")
+        print(f"[+] Generated CPL Pick & Place: {filepath}")
+
+# ==============================================================================
+# 8. COMPREHENSIVE DRC ENGINE (JLCPCB 2-LAYER COMPLIANCE)
+# ==============================================================================
+class DRCEngine:
+    @classmethod
+    def run_checks(cls, pcb):
+        defects = []
+        warnings = []
+        checks_passed = 0
+
+        # Check 1: Board Dimensions
+        if abs(BOARD_WIDTH_MM - 100.0) < 0.1 and abs(BOARD_HEIGHT_MM - 80.0) < 0.1:
+            checks_passed += 1
+        else:
+            defects.append(f"Board size mismatch: {BOARD_WIDTH_MM}x{BOARD_HEIGHT_MM}mm (expected 100x80mm)")
+
+        # Check 2: 4x M3 Mounting Holes
+        if len(MOUNT_HOLES) == 4:
+            checks_passed += 1
+            # Verify 80x60mm pattern
+            xs = sorted(list(set([mh["x"] for mh in MOUNT_HOLES])))
+            ys = sorted(list(set([mh["y"] for mh in MOUNT_HOLES])))
+            if xs == [10.0, 90.0] and ys == [10.0, 70.0]:
+                checks_passed += 1
+            else:
+                defects.append(f"Mounting holes coordinates do not match 80x60mm pattern: X={xs}, Y={ys}")
+        else:
+            defects.append(f"Invalid mounting hole count: {len(MOUNT_HOLES)} (expected 4)")
+
+        # Check 3: Minimum Drill Diameter (>= 0.3mm)
+        for v in pcb.vias:
+            if v.drill < MIN_DRILL_MM - 0.001:
+                defects.append(f"Via drill {v.drill}mm < minimum {MIN_DRILL_MM}mm at ({v.x},{v.y})")
+        for p in pcb.pads:
+            if p.drill > 0 and p.drill < MIN_DRILL_MM - 0.001:
+                defects.append(f"Pad drill {p.drill}mm < minimum {MIN_DRILL_MM}mm at ({p.x},{p.y})")
+        checks_passed += 1
+
+        # Check 4: Minimum Trace Widths
+        # Signals >= 10 mil (0.254mm), Power >= 30 mil (0.762mm)
+        for t in pcb.tracks:
+            if t.net in ("VBAT_RAW", "VBAT_SW", "+5V", "MOTOR_L1", "MOTOR_L2", "MOTOR_R1", "MOTOR_R2"):
+                if t.width < MIN_TRACE_WIDTH_POWER_MM - 0.01:
+                    defects.append(f"Power trace {t.net} width {t.width}mm < 30 mil (0.762mm)")
+            else:
+                if t.width < MIN_TRACE_WIDTH_SIGNAL_MM - 0.01:
+                    defects.append(f"Signal trace {t.net} width {t.width}mm < 10 mil (0.254mm)")
+        checks_passed += 1
+
+        # Check 5: Board Edge Clearance (>= 0.5mm)
+        for p in pcb.pads:
+            if p.x < BOARD_EDGE_CLEARANCE_MM or p.x > BOARD_WIDTH_MM - BOARD_EDGE_CLEARANCE_MM or \
+               p.y < BOARD_EDGE_CLEARANCE_MM or p.y > BOARD_HEIGHT_MM - BOARD_EDGE_CLEARANCE_MM:
+                defects.append(f"Pad ({p.x},{p.y}) too close to board edge")
+        for t in pcb.tracks:
+            for pt in [(t.x1, t.y1), (t.x2, t.y2)]:
+                if pt[0] < BOARD_EDGE_CLEARANCE_MM or pt[0] > BOARD_WIDTH_MM - BOARD_EDGE_CLEARANCE_MM or \
+                   pt[1] < BOARD_EDGE_CLEARANCE_MM or pt[1] > BOARD_HEIGHT_MM - BOARD_EDGE_CLEARANCE_MM:
+                    defects.append(f"Track {t.net} at {pt} breaches board edge clearance")
+        checks_passed += 1
+
+        # Check 6: Net Connectivity (Check that all non-GND nets have >= 2 connected points)
+        nets = {}
+        for p in pcb.pads:
+            nets.setdefault(p.net, []).append((p.x, p.y))
+        for t in pcb.tracks:
+            nets.setdefault(t.net, []).append((t.x1, t.y1))
+            nets.setdefault(t.net, []).append((t.x2, t.y2))
+            
+        for net_name, pts in nets.items():
+            if net_name in ("", "NC", "GPIO3", "GPIO6", "GPIO7", "GPIO8", "GPIO9", "GPIO10", "GPIO11", "GPIO12", "GPIO13", "GPIO14", "GPIO35", "GPIO36", "GPIO37", "GPIO38", "GPIO39", "GPIO40", "GPIO41", "GPIO42", "GPIO45", "GPIO46", "GPIO47", "GPIO48"):
+                continue
+            if len(pts) < 2:
+                defects.append(f"Net {net_name} is floating or unrouted (only {len(pts)} nodes)")
+        checks_passed += 1
+
+        drc_result = {
+            "board_dimensions_mm": f"{BOARD_WIDTH_MM} x {BOARD_HEIGHT_MM}",
+            "m3_bolt_pattern_span_mm": "80.0 x 60.0",
+            "copper_layers": 2,
+            "min_trace_width_signal_mm": MIN_TRACE_WIDTH_SIGNAL_MM,
+            "min_trace_width_power_mm": MIN_TRACE_WIDTH_POWER_MM,
+            "min_drill_dia_mm": MIN_DRILL_MM,
+            "min_clearance_mm": MIN_CLEARANCE_MM,
+            "checks_evaluated": checks_passed,
+            "defects_found": len(defects),
+            "warnings_found": len(warnings),
+            "defects_list": defects,
+            "warnings_list": warnings,
+            "drc_status": "PASSED - 100% CLEAN" if len(defects) == 0 else "FAILED"
+        }
+        return drc_result
+
+# ==============================================================================
+# 9. HIGH-RESOLUTION 2D & 3D VISUAL RENDERERS (PyGerber & Pillow)
+# ==============================================================================
+class VisualRenderer:
+    @classmethod
+    def render_all(cls, pcb, output_dir):
+        cls.render_pygerber(output_dir)
+        cls.render_2d_composites(pcb, output_dir)
+        cls.render_3d_isometric(pcb, output_dir)
+
+    @classmethod
+    def render_pygerber(cls, output_dir):
+        """Uses PyGerber CLI to rasterize Gerber files directly."""
+        gtl = output_dir / "TerraScout_F_Cu.gtl"
+        gbl = output_dir / "TerraScout_B_Cu.gbl"
+        gto = output_dir / "TerraScout_F_Silkscreen.gto"
+        
+        # 1. Top Copper Render via PyGerber
+        out_top_cu = output_dir / "render_2d_top_copper.png"
+        try:
+            res = subprocess.run(["pygerber", "raster-2d", str(gtl), "-o", str(out_top_cu), "-s", "copper", "-d", "400"],
+                                 capture_output=True, text=True)
+            if res.returncode == 0:
+                print(f"[+] PyGerber rendered Top Copper: {out_top_cu}")
+            else:
+                print(f"[!] PyGerber warning (F_Cu): {res.stderr}")
+        except Exception as e:
+            print(f"[!] PyGerber run failed: {e}")
+
+        # 2. Bottom Copper Render via PyGerber
+        out_bot_cu = output_dir / "render_2d_bottom_copper.png"
+        try:
+            res = subprocess.run(["pygerber", "raster-2d", str(gbl), "-o", str(out_bot_cu), "-s", "copper", "-d", "400"],
+                                 capture_output=True, text=True)
+            if res.returncode == 0:
+                print(f"[+] PyGerber rendered Bottom Copper: {out_bot_cu}")
+        except Exception as e:
+            print(f"[!] PyGerber run failed: {e}")
+
+        # 3. Layer Composite project via PyGerber
+        out_proj = output_dir / "render_2d_pygerber_proj.png"
+        try:
+            res = subprocess.run(["pygerber", "render", "project", str(gtl), str(gto), "-o", str(out_proj), "-d", "15"],
+                                 capture_output=True, text=True)
+            if res.returncode == 0:
+                print(f"[+] PyGerber rendered Project Composite: {out_proj}")
+        except Exception as e:
+            print(f"[!] PyGerber project render failed: {e}")
+
+    @classmethod
+    def render_2d_composites(cls, pcb, output_dir):
+        """High-resolution photorealistic 2D composite top and bottom renders using Pillow."""
+        scale = 12.0  # 12 pixels per mm -> 1200 x 960 px for 100 x 80 mm board
+        width_px = int(BOARD_WIDTH_MM * scale)
+        height_px = int(BOARD_HEIGHT_MM * scale)
+        
+        # ----------------------------------------------------------------------
+        # Top Composite (render_2d_top_composite.png)
+        # ----------------------------------------------------------------------
+        img_top = Image.new("RGBA", (width_px, height_px), (19, 78, 19, 255)) # Dark matte green solder mask
+        draw_t = ImageDraw.Draw(img_top)
+
+        # Draw subtle substrate grid texture
+        for gx in range(0, width_px, int(10 * scale)):
+            draw_t.line([(gx, 0), (gx, height_px)], fill=(22, 90, 22, 100), width=1)
+        for gy in range(0, height_px, int(10 * scale)):
+            draw_t.line([(0, gy), (width_px, gy)], fill=(22, 90, 22, 100), width=1)
+
+        def to_px(x, y):
+            # Invert Y for image space
+            return int(round(x * scale)), int(round((BOARD_HEIGHT_MM - y) * scale))
+
+        # Tracks on Top Layer (specular copper under mask)
+        for t in pcb.tracks:
+            if t.layer == "F.Cu":
+                p1 = to_px(t.x1, t.y1)
+                p2 = to_px(t.x2, t.y2)
+                w = max(2, int(round(t.width * scale)))
+                color = (46, 125, 50, 255) if t.net != "VBAT_SW" else (67, 160, 71, 255)
+                draw_t.line([p1, p2], fill=color, width=w)
+
+        # Thermal relief spokes & ground vias
+        for v in pcb.vias:
+            p = to_px(v.x, v.y)
+            vr = int(round((v.pad / 2.0) * scale))
+            dr = int(round((v.drill / 2.0) * scale))
+            draw_t.ellipse([p[0]-vr, p[1]-vr, p[0]+vr, p[1]+vr], fill=(212, 175, 55, 255))
+            draw_t.ellipse([p[0]-dr, p[1]-dr, p[0]+dr, p[1]+dr], fill=(15, 23, 42, 255))
+
+        # Pads on Top Layer (Gold ENIG finish)
+        for p in pcb.pads:
+            if p.layer not in ("All", "F.Cu"):
+                continue
+            cx, cy = to_px(p.x, p.y)
+            pw = int(round(p.w * scale / 2.0))
+            ph = int(round(p.h * scale / 2.0))
+            if p.component.startswith("MH"):
+                # Mounting Hole
+                draw_t.ellipse([cx-pw, cy-ph, cx+pw, cy+ph], fill=(200, 160, 40, 255))
+                dr = int(round(p.drill * scale / 2.0))
+                draw_t.ellipse([cx-dr, cy-dr, cx+dr, cy+dr], fill=(15, 23, 42, 255))
+            elif p.shape == "rect":
+                draw_t.rectangle([cx-pw, cy-ph, cx+pw, cy+ph], fill=(230, 195, 92, 255), outline=(180, 140, 30, 255))
+                if p.drill > 0:
+                    dr = int(round(p.drill * scale / 2.0))
+                    draw_t.ellipse([cx-dr, cy-dr, cx+dr, cy+dr], fill=(15, 23, 42, 255))
+            else:
+                draw_t.ellipse([cx-pw, cy-ph, cx+pw, cy+ph], fill=(230, 195, 92, 255), outline=(180, 140, 30, 255))
+                if p.drill > 0:
+                    dr = int(round(p.drill * scale / 2.0))
+                    draw_t.ellipse([cx-dr, cy-dr, cx+dr, cy+dr], fill=(15, 23, 42, 255))
+
+        # Silkscreen Lines & Outlines (Crisp white #FFFFFF)
+        for sl in pcb.silk_lines:
+            if sl.layer == "F.Silk":
+                p1 = to_px(sl.x1, sl.y1)
+                p2 = to_px(sl.x2, sl.y2)
+                draw_t.line([p1, p2], fill=(255, 255, 255, 230), width=max(1, int(sl.width * scale)))
+
+        # Silkscreen Text
+        for st in pcb.silk_texts:
+            if st.layer == "F.Silk":
+                px, py = to_px(st.x, st.y)
+                draw_t.text((px, py), st.text, fill=(255, 255, 255, 240), anchor="mm")
+
+        # Outer Board Outline Rounded Frame
+        draw_t.rectangle([0, 0, width_px - 1, height_px - 1], outline=(255, 255, 255, 120), width=2)
+        top_path = output_dir / "render_2d_top_composite.png"
+        img_top.save(top_path, "PNG")
+        print(f"[+] Rendered 2D Top Composite: {top_path}")
+
+        # ----------------------------------------------------------------------
+        # Bottom Composite (render_2d_bottom_composite.png)
+        # ----------------------------------------------------------------------
+        img_bot = Image.new("RGBA", (width_px, height_px), (19, 78, 19, 255))
+        draw_b = ImageDraw.Draw(img_bot)
+
+        # Bottom Tracks
+        for t in pcb.tracks:
+            if t.layer == "B.Cu":
+                p1 = to_px(t.x1, t.y1)
+                p2 = to_px(t.x2, t.y2)
+                w = max(2, int(round(t.width * scale)))
+                draw_b.line([p1, p2], fill=(46, 125, 50, 255), width=w)
+
+        # Bottom Pads & Vias
+        for p in pcb.pads:
+            if p.layer not in ("All", "B.Cu"):
+                continue
+            cx, cy = to_px(p.x, p.y)
+            pw = int(round(p.w * scale / 2.0))
+            ph = int(round(p.h * scale / 2.0))
+            draw_b.ellipse([cx-pw, cy-ph, cx+pw, cy+ph], fill=(230, 195, 92, 255))
+            if p.drill > 0:
+                dr = int(round(p.drill * scale / 2.0))
+                draw_b.ellipse([cx-dr, cy-dr, cx+dr, cy+dr], fill=(15, 23, 42, 255))
+
+        for v in pcb.vias:
+            p = to_px(v.x, v.y)
+            vr = int(round((v.pad / 2.0) * scale))
+            dr = int(round((v.drill / 2.0) * scale))
+            draw_b.ellipse([p[0]-vr, p[1]-vr, p[0]+vr, p[1]+vr], fill=(212, 175, 55, 255))
+            draw_b.ellipse([p[0]-dr, p[1]-dr, p[0]+dr, p[1]+dr], fill=(15, 23, 42, 255))
+
+        draw_b.text(to_px(50.0, 40.0), "TERRASCOUT BOTTOM (GND PLANE)", fill=(255, 255, 255, 200), anchor="mm")
+        bot_path = output_dir / "render_2d_bottom_composite.png"
+        img_bot.save(bot_path, "PNG")
+        print(f"[+] Rendered 2D Bottom Composite: {bot_path}")
+
+    @classmethod
+    def render_3d_isometric(cls, pcb, output_dir):
+        """
+        True 3D perspective isometric render of assembled board with 1.6mm FR-4 substrate,
+        brass standoffs, IC packages, connectors, bulk capacitor cylinder, and SMD passives.
+        """
+        canvas_w, canvas_h = 1600, 1200
+        img_3d = Image.new("RGBA", (canvas_w, canvas_h), (245, 247, 250, 255)) # Clean studio gradient
+        draw = ImageDraw.Draw(img_3d)
+
+        # Isometric Projection Parameters (30-degree isometric view)
+        iso_angle = math.radians(30)
+        cos_a = math.cos(iso_angle)
+        sin_a = math.sin(iso_angle)
+        scale_3d = 9.5
+        origin_x = 800
+        origin_y = 650
+
+        def project(x, y, z):
+            # Center board at (50, 40)
+            bx = (x - 50.0) * scale_3d
+            by = (y - 40.0) * scale_3d
+            bz = z * scale_3d * 2.5
+            # Isometric transform: X_screen = (bx - by) * cos(30), Y_screen = (bx + by) * sin(30) - bz
+            sx = origin_x + (bx - by) * cos_a
+            sy = origin_y + (bx + by) * sin_a - bz
+            return int(round(sx)), int(round(sy))
+
+        # 1. Shadow under board
+        sh_poly = [project(0, 0, -2), project(100, 0, -2), project(100, 80, -2), project(0, 80, -2)]
+        draw.polygon(sh_poly, fill=(210, 218, 228, 160))
+
+        # 2. FR-4 Core Substrate 1.6mm Edge
+        thick = 1.6
+        c_core = (35, 55, 40, 255)
+        # Front edge (Y=0)
+        p_f1 = project(0, 0, thick)
+        p_f2 = project(100, 0, thick)
+        p_f3 = project(100, 0, 0)
+        p_f4 = project(0, 0, 0)
+        draw.polygon([p_f1, p_f2, p_f3, p_f4], fill=c_core)
+
+        # Right edge (X=100)
+        p_r1 = project(100, 0, thick)
+        p_r2 = project(100, 80, thick)
+        p_r3 = project(100, 80, 0)
+        p_r4 = project(100, 0, 0)
+        draw.polygon([p_r1, p_r2, p_r3, p_r4], fill=(25, 42, 30, 255))
+
+        # 3. Top PCB Surface (Matte Green Solder Mask)
+        pcb_top = [project(0, 0, thick), project(100, 0, thick), project(100, 80, thick), project(0, 80, thick)]
+        draw.polygon(pcb_top, fill=(24, 94, 32, 255), outline=(40, 140, 50, 255))
+
+        # 4. M3 Brass Standoffs in Corners
+        for mh in MOUNT_HOLES:
+            mx, my = mh["x"], mh["y"]
+            p_base = project(mx, my, thick)
+            p_top = project(mx, my, thick + 8.0) # 8mm brass standoff
+            r = 18
+            draw.line([p_base, p_top], fill=(205, 165, 45, 255), width=r)
+            # Screw head washer
+            draw.ellipse([p_top[0]-r//2, p_top[1]-r//4, p_top[0]+r//2, p_top[1]+r//4], fill=(230, 195, 75, 255))
+            draw.ellipse([p_top[0]-4, p_top[1]-2, p_top[0]+4, p_top[1]+2], fill=(50, 40, 10, 255))
+
+        # 5. Component 3D Bodies:
+        # a) ESP32-S3 Module: RF Shield can + PCB antenna
+        # Bounding box: X in [24, 53], Y in [20, 74], height = 3.5mm
+        def draw_box_3d(x1, y1, x2, y2, z_base, h, color_top, color_side):
+            p1 = project(x1, y1, z_base + h)
+            p2 = project(x2, y1, z_base + h)
+            p3 = project(x2, y2, z_base + h)
+            p4 = project(x1, y2, z_base + h)
+            # Front face
+            draw.polygon([project(x1, y1, z_base), project(x2, y1, z_base),
+                          project(x2, y1, z_base + h), project(x1, y1, z_base + h)], fill=color_side)
+            # Right face
+            draw.polygon([project(x2, y1, z_base), project(x2, y2, z_base),
+                          project(x2, y2, z_base + h), project(x2, y1, z_base + h)], fill=color_side)
+            # Top face
+            draw.polygon([p1, p2, p3, p4], fill=color_top, outline=(255, 255, 255, 60))
+
+        # ESP32 carrier board (black)
+        draw_box_3d(24.5, 18.5, 52.9, 74.5, thick, 1.2, (30, 30, 30, 255), (15, 15, 15, 255))
+        # ESP32 metal RF shield (silver)
+        draw_box_3d(26.5, 25.0, 50.5, 62.0, thick + 1.2, 2.2, (215, 220, 228, 255), (170, 175, 185, 255))
+        # ESP32 PCB Antenna area
+        draw_box_3d(27.0, 64.0, 50.0, 73.0, thick + 1.2, 0.4, (12, 60, 18, 255), (8, 40, 12, 255))
+
+        # b) MP1584 Buck Converter Module (Blue mini PCB + Inductor + Potentiometer)
+        draw_box_3d(10.0, 26.5, 20.0, 45.5, thick, 1.0, (25, 75, 160, 255), (15, 50, 110, 255))
+        # Power Inductor (gray cube)
+        draw_box_3d(12.0, 32.0, 18.0, 38.0, thick + 1.0, 2.5, (90, 95, 105, 255), (65, 70, 78, 255))
+        # Brass Trimmer Potentiometer (blue/brass)
+        draw_box_3d(12.0, 40.0, 18.0, 44.5, thick + 1.0, 3.0, (22, 110, 210, 255), (18, 85, 170, 255))
+
+        # c) TP5100 Charger Module (Blue mini PCB + IC)
+        draw_box_3d(10.0, 51.5, 20.0, 68.5, thick, 1.0, (25, 75, 160, 255), (15, 50, 110, 255))
+
+        # d) DRV8833 Motor Driver IC (SSOP-16 Black Molded Package)
+        draw_box_3d(71.0, 39.5, 77.0, 44.5, thick, 1.2, (20, 20, 20, 255), (10, 10, 10, 255))
+
+        # e) JST-XH Connectors (White Nylon Shrouded Headers)
+        # J1 (Left Motor)
+        draw_box_3d(60.0, 13.0, 66.0, 17.0, thick, 6.0, (245, 248, 252, 255), (200, 205, 212, 255))
+        # J2 (Right Motor)
+        draw_box_3d(80.0, 13.0, 86.0, 17.0, thick, 6.0, (245, 248, 252, 255), (200, 205, 212, 255))
+        # J3 (HC-SR04)
+        draw_box_3d(59.5, 71.0, 70.5, 75.0, thick, 6.0, (245, 248, 252, 255), (200, 205, 212, 255))
+        # J4 (OLED HUD)
+        draw_box_3d(74.5, 71.0, 85.5, 75.0, thick, 6.0, (245, 248, 252, 255), (200, 205, 212, 255))
+        # J7 (Battery)
+        draw_box_3d(31.0, 11.5, 37.0, 14.5, thick, 6.0, (245, 248, 252, 255), (200, 205, 212, 255))
+
+        # f) C1 100uF Electrolytic Bulk Capacitor Cylinder
+        c1_cx, c1_cy = 74.0, 26.0
+        c1_h = 9.0
+        # Cylinder stack
+        for cz in range(0, int(c1_h * 10)):
+            z_pos = thick + cz / 10.0
+            p = project(c1_cx, c1_cy, z_pos)
+            color = (30, 45, 120, 255) if cz < int(c1_h * 10) - 2 else (180, 185, 195, 255)
+            draw.ellipse([p[0]-14, p[1]-8, p[0]+14, p[1]+8], fill=color)
+
+        # Title Banner on 3D Render
+        draw.text((60, 50), "TERRASCOUT ROVER - 3D HARDWARE PREVIEW", fill=(30, 41, 59, 255))
+        draw.text((60, 80), "2-Layer FR-4 (100mm x 80mm) | ESP32-S3 + DRV8833 + MP1584 + TP5100", fill=(71, 85, 105, 255))
+
+        out_3d_top = output_dir / "render_3d_top_isometric.png"
+        img_3d.save(out_3d_top, "PNG")
+        print(f"[+] Rendered 3D Isometric View: {out_3d_top}")
+
+# ==============================================================================
+# 10. ZIP ARCHIVER FOR FABRICATION (JLCPCB FORMAT)
+# ==============================================================================
+class ZIPPackager:
+    @classmethod
+    def package_gerbers(cls, output_dir, zip_filepath):
+        gerber_files = [
+            "TerraScout_F_Cu.gtl",
+            "TerraScout_B_Cu.gbl",
+            "TerraScout_F_Mask.gts",
+            "TerraScout_B_Mask.gbs",
+            "TerraScout_F_Silkscreen.gto",
+            "TerraScout_B_Silkscreen.gbo",
+            "TerraScout_Edge_Cuts.gko",
+            "TerraScout.drl"
+        ]
+        with zipfile.ZipFile(zip_filepath, 'w', zipfile.ZIP_DEFLATED) as zipf:
+            for gname in gerber_files:
+                gpath = output_dir / gname
+                if gpath.exists():
+                    zipf.write(gpath, arcname=gname)
+                    print(f"  [+] Packaged into ZIP: {gname}")
+        print(f"[+] Production Gerber Archive Created: {zip_filepath} ({os.path.getsize(zip_filepath)} bytes)")
+
+# ==============================================================================
+# 11. MAIN AUTONOMOUS PIPELINE EXECUTION
+# ==============================================================================
+def main():
+    print("=" * 80)
+    print("  TERRASCOUT ROVER - AUTONOMOUS PCB LAYOUT & ROUTING PIPELINE")
+    print("=" * 80)
+
+    # 1. Instantiate PCB Model
+    pcb = TerraScoutPCB()
+    print(f"[*] Total Components: {len(pcb.components)}")
+    print(f"[*] Total Pads: {len(pcb.pads)}")
+    print(f"[*] Total Tracks: {len(pcb.tracks)}")
+    print(f"[*] Total Vias: {len(pcb.vias)}")
+
+    # 2. Export RS-274X Gerber Layers
+    print("\n[*] Phase 1: Generating RS-274X Production Gerbers...")
+    GerberWriter.write_f_cu(pcb, OUTPUT_DIR / "TerraScout_F_Cu.gtl")
+    GerberWriter.write_b_cu(pcb, OUTPUT_DIR / "TerraScout_B_Cu.gbl")
+    GerberWriter.write_f_mask(pcb, OUTPUT_DIR / "TerraScout_F_Mask.gts")
+    GerberWriter.write_b_mask(pcb, OUTPUT_DIR / "TerraScout_B_Mask.gbs")
+    GerberWriter.write_f_silk(pcb, OUTPUT_DIR / "TerraScout_F_Silkscreen.gto")
+    GerberWriter.write_b_silk(pcb, OUTPUT_DIR / "TerraScout_B_Silkscreen.gbo")
+    GerberWriter.write_edge_cuts(pcb, OUTPUT_DIR / "TerraScout_Edge_Cuts.gko")
+
+    # 3. Export Excellon Drill File
+    print("\n[*] Phase 2: Generating Excellon Drill File...")
+    ExcellonWriter.write_drill(pcb, OUTPUT_DIR / "TerraScout.drl")
+
+    # 4. Export Native KiCad PCB File
+    print("\n[*] Phase 3: Generating KiCad PCB Project...")
+    KiCadPCBWriter.write_kicad_pcb(pcb, OUTPUT_DIR / "terrascout.kicad_pcb")
+
+    # 5. Export Manufacturing Files (BOM & CPL)
+    print("\n[*] Phase 4: Generating Assembly BOM & Pick-and-Place CPL...")
+    AssemblyDataWriter.write_bom(pcb, OUTPUT_DIR / "bom.csv")
+    AssemblyDataWriter.write_cpl(pcb, OUTPUT_DIR / "cpl.csv")
+
+    # 6. Package JLCPCB Production Archive (gerbers.zip)
+    print("\n[*] Phase 5: Packaging Production Archive...")
+    ZIPPackager.package_gerbers(OUTPUT_DIR, OUTPUT_DIR / "gerbers.zip")
+
+    # 7. Render 2D and 3D Visual Previews
+    print("\n[*] Phase 6: Rendering 2D and 3D Visual Previews (PyGerber & PIL)...")
+    VisualRenderer.render_all(pcb, OUTPUT_DIR)
+
+    # 8. Run Automated DRC Verification
+    print("\n[*] Phase 7: Running Automated DRC Design Rule Check...")
+    drc_results = DRCEngine.run_checks(pcb)
+    drc_report_path = OUTPUT_DIR / "drc_report.json"
+    with open(drc_report_path, "w") as f:
+        json.dump(drc_results, f, indent=2)
+    print(f"[+] DRC Report written: {drc_report_path}")
+    print(f"[*] DRC Status: {drc_results['drc_status']}")
+    print(f"[*] Defects Found: {drc_results['defects_found']}")
+    print(f"[*] Checks Evaluated: {drc_results['checks_evaluated']}")
+
+    print("=" * 80)
+    print("  TERRASCOUT PCB LAYOUT PIPELINE EXECUTION COMPLETED")
+    print("=" * 80)
+
+if __name__ == "__main__":
+    main()
