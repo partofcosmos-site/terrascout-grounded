@@ -15,7 +15,7 @@
       grid(
         columns: (1fr, auto),
         align(left)[#text(7.5pt, fill: rgb("#475569"), weight: "bold")[TERRASCOUT GROUNDED ROVER CHASSIS — ENGINEERING SPECIFICATION & BLUEPRINT]],
-        align(right)[#text(7.5pt, fill: rgb("#64748b"))[DWG-TS-CAD-02 | REV 3.3]]
+        align(right)[#text(7.5pt, fill: rgb("#64748b"))[DWG-TS-CAD-02 | REV 3.4]]
       )
       v(-3pt)
       line(length: 100%, stroke: 0.5pt + rgb("#cbd5e1"))
@@ -175,28 +175,28 @@
 #pagebreak()
 
 // --- Page 2: Tolerances & Manufacturing Matrix ---
-#text(9.5pt, weight: "bold", fill: rgb("#0369a1"))[4. Manufacturing Clearance & Dimensional Tolerance Matrix]
+#text(9.5pt, weight: "bold", fill: rgb("#0369a1"))[4. Manufacturing Clearance & Thermal Tolerance Stack-Up Matrix (-20°C to +60°C per ISO 286)]
 
 #table(
-  columns: (1.8fr, 1.3fr, 1.4fr, 1.5fr, 1.1fr),
-  inset: 3.5pt,
+  columns: (1.4fr, 1.2fr, 1.2fr, 1.8fr, 0.9fr),
+  inset: 2.8pt,
   stroke: 0.5pt + rgb("#cbd5e1"),
   fill: (col, row) => if row == 0 { rgb("#f1f5f9") } else { none },
   align: (left, left, left, left, center),
-  [#text(7.5pt, weight: "bold")[Subsystem Feature]],
-  [#text(7.5pt, weight: "bold")[CAD Geometry]],
-  [#text(7.5pt, weight: "bold")[Mating Hardware]],
-  [#text(7.5pt, weight: "bold")[Clearance / Fit Margins]],
-  [#text(7.5pt, weight: "bold")[Audit Status]],
-  [N20 Motor Pockets (2x)], [$12.00 times 10.00$ mm cavity], [Metal gearbox $12 times 10$ mm], [$0.10$ mm interference clamp fit], [PASS ($3.62$ MPa Clamping)],
-  [N20 Axle Exit Cutouts], [Dia $5.00$ mm D-shaft slot], [Dia $3.00$ mm motor shaft], [$1.00$ mm radial clearance], [PASS (Zero Friction)],
-  [Captive M3 Nut Pockets (4x)], [$5.70$ mm flat-to-flat hex], [M3 DIN 934 hex nut], [$0.20$ mm friction press fit], [PASS (Anti-Spin Fit)],
-  [M3 Through-Hole Bores (4x)], [Dia $3.40$ mm through bore], [M3 ISO metric screw], [$0.20$ mm radial clearance (ISO 273)], [PASS (Free Fit)],
-  [18650 Dual Battery Bay], [$67.00 times 38.00 times 20.00$ mm], [Dual 18650 Li-ion cells], [$2.50$ mm perimeter convection gap], [PASS (Thermal Safety)],
-  [Rear Caster Ball Bay], [Dia $12.50$ mm spherical cup], [Dia $12.00$ mm steel ball], [$0.25$ mm dynamic rolling gap], [PASS (Smooth Roll)],
-  [Turret Servo Mast Socket], [$23.50 times 12.50$ mm bracket], [SG90 micro servo], [$0.25$ mm perimeter slide margin], [PASS (Positive Latch)],
-  [Main Wiring Pass-Thru], [$25.00 times 12.00$ mm slot], [Ribbon harness & power leads], [$1.50$ mm edge fillet radius], [PASS (Zero Pinching)],
-  [Ultrasonic Bracket Mouth], [$46.00 times 16.00$ mm bezel], [HC-SR04 sonar module], [$0.30$ mm perimeter perimeter slot], [PASS (Snap Retention)]
+  [#text(7pt, weight: "bold")[Subsystem Feature]],
+  [#text(7pt, weight: "bold")[CAD Geometry]],
+  [#text(7pt, weight: "bold")[Mating Hardware]],
+  [#text(7pt, weight: "bold")[Nominal & Thermal Margins (±40K)]],
+  [#text(7pt, weight: "bold")[Audit Status]],
+  [N20 Motor Clamp Cavity], [$12.00 times 10.00$ mm cavity], [Metal gearbox $12 times 10$ mm], [$100$ µm fit ($79.8 - 120.2$ µm; $P > 2.6$ MPa)], [PASS (No Slip)],
+  [N20 Axle Exit Cutouts], [Dia $5.00$ mm D-shaft slot], [Dia $3.00$ mm motor shaft], [$1.00$ mm radial clearance ($988 - 1012$ µm)], [PASS (Zero Rub)],
+  [Captive M3 Nut Pockets], [$5.70$ mm flat-to-flat hex], [M3 DIN 934 hex nut], [$200$ µm press fit ($190.6 - 209.4$ µm)], [PASS (Anti-Spin)],
+  [Controller PCB M3 Holes], [Dia $3.60$ mm through bore], [M3 ISO metric screw], [$0.300$ mm radial (Min gap $162$ µm @ $+60^degree$C)], [PASS (Zero Warp)],
+  [18650 Dual Battery Bay], [$67.00 times 38.00 times 20.00$ mm], [Dual 18650 Li-ion cells], [$2.00$ mm axial gap ($1870 - 2130$ µm)], [PASS (No Pinch)],
+  [Rear Caster Ball Bay], [Dia $12.50$ mm spherical cup], [Dia $12.00$ mm steel ball], [$0.250$ mm gap ($248.8 - 251.2$ µm)], [PASS (Smooth Roll)],
+  [Turret Servo Mast Socket], [$23.50 times 12.50$ mm bracket], [SG90 micro servo], [$0.25$ mm slide margin ($235.5 - 264.5$ µm)], [PASS (Positive Latch)],
+  [Upper Deck Splash Skirt], [$2.5$ mm drop, $3.0$ mm overhang], [Chassis perimeter rim], [Overhang $3000 plus.minus 7.2$ µm ($45^degree$ drip edge)], [PASS (Splash Lip)],
+  [Ultrasonic Bracket Mouth], [$46.00 times 16.00$ mm bezel], [HC-SR04 sonar module], [$0.30$ mm perimeter slot ($289 - 311$ µm)], [PASS (Snap Retention)]
 )
 
 #v(2pt)
